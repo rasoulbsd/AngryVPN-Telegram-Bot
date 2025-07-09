@@ -1,6 +1,5 @@
 import telegram
 import telegram.ext as telext
-import datetime
 from ..initial import connect_to_database, get_secrets_config, set_lang
 from ..bot_functions import check_subscription
 from helpers.states import (

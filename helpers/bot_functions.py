@@ -3,7 +3,6 @@ import telegram.ext as telext
 import helpers.xuiAPI as xAPI
 import datetime
 from .initial import get_secrets_config, connect_to_database, set_lang
-import requests
 
 MAX_RETRIES = 5
 DELAY_IN_SECONDS = 60

@@ -9,7 +9,7 @@ import helpers.xuiAPI as xAPI
 from helpers.states import (
     ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_FINAL,
     ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT,
-    ACCEPT, REJECT_CHECK, REJECT
+    ACCEPT, REJECT_CHECK
 )
 
 (secrets, Config) = get_secrets_config()
@@ -77,7 +77,7 @@ async def admin_charge_account_with_server(update: telegram.Update, context: tel
     if(server_name == None and server_name == ""):
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"You must at first select server!"
+            text="You must at first select server!"
         )
         return telext.ConversationHandler.END
 
@@ -209,7 +209,7 @@ async def admin_charge_all_accounts_with_server(update: telegram.Update, context
     if(server_name == None and server_name == ""):
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"You must at first select server!"
+            text="You must at first select server!"
         )
         return telext.ConversationHandler.END
 
@@ -270,7 +270,7 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
         if(count == 0):
             await context.bot.send_message(
                 chat_id=update.effective_user.id,
-                text=f"No user found in this organization"
+                text="No user found in this organization"
             )
         else:
             await context.bot.send_message(
