@@ -1,7 +1,7 @@
 import helpers.xuiAPI as xAPI
 from helpers.initial import get_secrets_config, connect_to_database
 from bson import Int64
-from check85 import send_warning_message
+from scripts.check85 import send_warning_message
 import asyncio
 def update_db():
     (secrets, Config) = get_secrets_config()

@@ -1,7 +1,7 @@
 import helpers.xuiAPI as xAPI
 from helpers.initial import get_secrets_config, connect_to_database
 from bson import Int64
-from check85 import send_warning_message
+from scripts.check85 import send_warning_message
 import asyncio
 import datetime
 async def update_wallets():
@@ -102,11 +102,5 @@ async def update_wallets():
                 continue
         number_of_updates += 1
     print(f"{number_of_updates} users updated successfully and {number_of_message} have been sent! {str(datetime.datetime.now())}")
-
-
-
-
-
-
 
 asyncio.run(update_wallets())
