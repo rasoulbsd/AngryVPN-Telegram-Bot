@@ -1,8 +1,11 @@
 import telegram
 import telegram.ext as telext
-from .initial import connect_to_database
+from .initial import connect_to_database, get_secrets_config, set_lang
 from .bot_functions import check_subscription
-from .states import *
+from .states import ORG_MNGMNT_SELECT_OPTION
+
+(secrets, Config) = get_secrets_config()
+_ = set_lang(Config['default_language'], 'org_admin')
 
 
 ############################# Functions #############################

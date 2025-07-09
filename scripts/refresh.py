@@ -32,7 +32,7 @@ async def update_wallets():
         for server_name in user_dict["server_names"]:
             server_tmp = db_client[secrets['DBName']].servers.find_one({'name': server_name})
             if server_tmp:
-                if not server_tmp['rowRemark'] in xui_server:
+                if server_tmp['rowRemark'] not in xui_server:
                     xui_server[server_tmp['rowRemark']] = xAPI.get_clients(server_tmp)
                 xui_data = xui_server[server_tmp['rowRemark']][xui_server[server_tmp['rowRemark']].index == f'{user_dict["user_id"]}-{server_name}@{server_tmp["rowRemark"]}']
                 for index, row in xui_data.iterrows():

@@ -5,3 +5,6 @@ python-telegram-bot
 python-telegram-bot[callback-data]
 python-dotenv
 pytest
+ruff
+black
+isort

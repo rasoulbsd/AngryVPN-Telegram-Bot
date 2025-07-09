@@ -4,6 +4,7 @@ Server/Vmess management functions for client flows.
 
 import telegram
 import telegram.ext as telext
+import uuid
 import helpers.xuiAPI as xAPI
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
@@ -110,7 +111,7 @@ async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DE
     is_error = False
     user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}"])
     print(user_client)
-    if type(user_client) == type(None) or user_client.shape[0] == 0:
+    if user_client is None or user_client.shape[0] == 0:
         temp = str(uuid.uuid4())
         result = xAPI.add_client(
             server_dict=server_dict,
@@ -124,7 +125,7 @@ async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DE
                 vmess_str = client_functions_texts("error_failed_account_creations")
                 print("Error - Failed to Create Account")
                 print(result)
-        if is_error == False:
+        if not is_error:
             user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}"])
             if user_client.shape[0] == 0:
                 is_error = True
@@ -217,7 +218,7 @@ async def deliver_vmess_status(update: telegram.Update, context: telext.ContextT
         reply_text = client_functions_texts("account_status") + '\n'
         reply_text += client_functions_texts("username") + f': _{user_dict["user_id"]}_\n'
         reply_text += client_functions_texts("server_name") + f': _{server_name}_\n'
-        reply_text += client_functions_texts("active") + f': _{"Yes" if row["enable"] else "No"}_\n'
+        reply_text += client_functions_texts("active") + f': _{"Yes" if user_dict.get("enable", True) else "No"}_\n'
         reply_text += 'مانده کیف پول' + f': {user_dict["wallet"]} ' + 'تومان' + '_\n'
     await update.effective_message.edit_text(reply_text, parse_mode=telegram.constants.ParseMode.MARKDOWN)
     db_client.close()

@@ -144,28 +144,6 @@ def get_clients(server_dict, select=None):
     if len(clients) == 0:
         return None
     return clients
-    with open(Config.secret_file, 'r') as fp:
-        xui_dict = json.load(fp)['xuis'][server_name]
-
-    headers = {
-        'Accept': "application/json, text/plain, */*",
-        'Accept-Language': "en-US,en;q=0.9",
-        'Content-Type': "application/x-www-form-urlencoded; charset=UTF-8",
-        'Cookie': f'x-ui={get_cookie(server_name)}',
-        'Authorization': xui_dict.get('httpAuth', None),
-        'X-Requested-With': "XMLHttpRequest"
-    }
-
-    res = requests.post(
-        f"{xui_dict['url']}/xui/inbound/update/{id}",
-        headers=headers,
-        data=urllib.parse.urlencode(row)
-    )
-
-    result = json.loads(res.text)
-    if not result['success']:
-        return -1, result['msg']
-    return (1,) #user_uuid, port
 
 
 def add_client_request(server_dict, payload):

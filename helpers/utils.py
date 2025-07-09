@@ -1,5 +1,11 @@
 import socket
-import contextlib 
+import contextlib
+import requests
+from helpers.initial import get_secrets_config, connect_to_database, set_lang
+
+(secrets, Config) = get_secrets_config()
+bot_functions_texts = set_lang(Config['default_language'], 'bot_functions')
+
 
 def is_port_open(port, host='127.0.0.1'):
     with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
@@ -17,4 +23,63 @@ def get_port():
         sock.close()
         if is_port_open(port):
             return port
+
+
+def normalize_transaction_id(tr_id):
+    # EXP: https://tronscan.org/#/transaction/bf8249412c56ab861a154a55ee8757b75dfc8b77e04c156bd5058262a87c2f9e
+    tr_id = tr_id.split("transaction/")
+    if "tronscan.org" in tr_id:
+        if len(tr_id) != 2:
+            return False
+        else:
+            return tr_id[1]
+    else:
+        return tr_id[0]
+
+
+def validate_transaction(payment_url, tr_id, org_name, plan):
+    try: 
+        db_client = connect_to_database(secrets['DBConString'])
+    except Exception:
+        print("Failed to connect to the database!")
+
+    org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
+    # valid_payment_url = org_obj['payment_options'][plan]
+    support_account = org_obj['support_account']
+
+    # Check for duplicated payments
+    if db_client[secrets['DBName']].payments.find_one({'transactionID': tr_id}) is not None:
+        reply_text = bot_functions_texts("used_transaction_id")+ '\n'
+        reply_text += bot_functions_texts("contact_support") + f': {support_account}'
+        db_client.close()
+        return (False, reply_text)
+
+    db_client.close()
+
+    # Check payment url based on user's org and selected plan
+    # if valid_payment_url != payment_url:
+    #     reply_text = f"Payment url is not valid or it is not same as the plan you have selected!\nPlease contact support: {support_account}"
+    #     return (False, reply_text)
+    # else:
+    #     return (True, )
+    return (True, None)
+
+
+async def verfiy_transaction(transaction_id, amount, dest_wallet , user_id, plan, payment_url):
+    url = f'https://apilist.tronscan.org/api/transaction-info?hash={transaction_id}'
+
+    response = requests.get(url)
+    if response.status_code != 200:
+        return (False, None)
+
+    data = response.json()
+
+    if 'confirmed' not in data and ('riskTransaction' in data and not data['riskTransaction']):
+        return (False, "Failed")
+    elif float(amount) != float(data['contractData']['amount'])/10**6 or dest_wallet != data['toAddress']:
+        return (False, "incorrect_data")
+    elif data['confirmed'] and data['contractRet'] == 'SUCCESS':
+        return (True, None)
+    else:
+        return (False, None)
             

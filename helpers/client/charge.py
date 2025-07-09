@@ -7,7 +7,8 @@ import telegram.ext as telext
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
 from helpers.states import (
-    USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT
+    USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT,
+    NEWUSER_PURCHASE_RIAL_ZARIN
 )
 import secrets as sc
 import requests
@@ -93,9 +94,9 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
     else:
         reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("zarinpal_message") + ':\n\n' + client_functions_texts('cancel_to_abort')
         context.user_data['merchant_id'] = org_obj['payment_options']['currencies']['rial']['merchant_id']
-        description = u'خرید پلن'+query.data['plan']
-        email=''
-        mobile=''
+        # description = u'خرید پلن'+query.data['plan']
+        # email=''
+        # mobile=''
         secret_url=sc.token_urlsafe()
         context.user_data['pay_amount'] = org_obj['payment_options']['currencies']['rial']['plans'][query.data['plan']]
         context.user_data['payment_type'] = 'rial'
@@ -161,14 +162,14 @@ async def user_charge_acc_inputed(update: telegram.Update, context: telext.Conte
                 await context.bot.send_message(
                     chat_id=org_obj['ticketing_group_id'],
                     text=
-                        f"Recharg\n"+
+                        "Recharg\n"+
                         f"payment_method:{context.user_data['payment_method']}\n" +
                         (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") +
                         f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" +
                         f"Plan:{context.user_data['plan']}\n" +
                         f"org:{context.user_data['org']}\n"+
                         f"pay_amount:{context.user_data['pay_amount']}, included {100-100*context.user_data['discount']}% discount\n" +
-                        f"currency:rial\n"+
+                        "currency:rial\n"+
                         "-------------------------\n" +
                         context.user_data['payment_receipt'],
                     reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
@@ -218,7 +219,7 @@ async def user_charge_acc_inputed_image(update: telegram.Update, context: telext
                     chat_id=org_obj['ticketing_group_id'],
                     photo=update.message.photo[0].file_id,
                     caption=
-                        f"Recharg\n"+
+                        "Recharg\n"+
                         f"payment_method:{context.user_data['payment_method']}\n" +
                         (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") +
                         f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" +
@@ -310,7 +311,7 @@ async def user_charge_rial_inputed_document(update: telegram.Update, context: te
                         f"pay_amount:{context.user_data['pay_amount']}, included "
                         f"{100-100*context.user_data['discount']}% discount\n"
                     )
-                    + f"currency:rial\n"
+                    + "currency:rial\n"
                     + f"{white_message}"
                 ),
                 reply_to_message_id=(

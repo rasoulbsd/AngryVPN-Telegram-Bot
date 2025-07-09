@@ -4,9 +4,12 @@ Crypto/manual purchase functions for client flows.
 
 import telegram
 import telegram.ext as telext
+import datetime
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
-from helpers.states import NEWUSER_PURCHASE_FINAL
+from helpers.states import NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY
+from helpers.utils import normalize_transaction_id, validate_transaction, verfiy_transaction
+import helpers.xuiAPI as xAPI
 
 (secrets, Config) = get_secrets_config()
 client_functions_texts = set_lang(Config['default_language'], 'client_functions')
@@ -218,15 +221,15 @@ async def newuser_purchase_crypto_check_manually(update, context):
         await context.bot.send_message(
             chat_id=org_ticketing_channel_id,
             text=(
-                f"❌ Failed Payment from user: \n\n" +
+                "❌ Failed Payment from user: \n\n" +
                 (f"@{context.user_data['username']} - " if(context.user_data['username'] is not None) else "") +
                 f"{context.user_data['user_id']} - {context.user_data['full_name']}" +
                 f"\nPlan: {context.user_data['plan']} Pack" +
                 "\n-------------------------" +
                 (
-                    f"\nPossibility of wrong transaction ID.\n"
+                    "\nPossibility of wrong transaction ID.\n"
                     if tr_verification_message == "Failed"
-                    else f"\nPossibility of incorrect amount or destination wallet on this transaction ID and selected plan.\n"
+                    else "\nPossibility of incorrect amount or destination wallet on this transaction ID and selected plan.\n"
                 ) +
                 f"\nhttps://tronscan.org/#/transaction/{context.user_data['transaction_id']}"
             ),
@@ -277,7 +280,7 @@ async def newuser_purchase_crypto_check_manually(update, context):
         await context.bot.send_message(
             chat_id=org_ticketing_channel_id,
             text=(
-                f"✅ Verfied Payment from user: \n\n" +
+                "✅ Verfied Payment from user: \n\n" +
                 (f"@{context.user_data['username']} - " if(context.user_data['username'] is not None) else "") +
                 f"{context.user_data['user_id']} - {context.user_data['full_name']}" +
                 f"\nPlan: {context.user_data['plan']} Pack" +

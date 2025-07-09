@@ -11,14 +11,14 @@ bot=Bot(token=TOKEN)
 async def send_warning_message(db ,user_dict, status = 0):
     print(f"Sending message to {user_dict['user_id']}")
 
-    if not 'status' in user_dict:
+    if 'status' not in user_dict:
         user_dict['status'] = 1
         db.users.update_one({'user_id': user_dict['user_id']}, {"$set": {"status": user_dict['status']}})
     reply_text = f"آی‌دی شما: `{user_dict['user_id']}`"
 
     reply_text += "\n\n"
-    reply_text += f"❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else f"⚠️ اعتبار شما کمتر از ۵ گیگ است. لطفا سریعا حسابتان را شارژ نمایید. ⚠️"
-    reply_text += f"\n"
+    reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ اعتبار شما کمتر از ۵ گیگ است. لطفا سریعا حسابتان را شارژ نمایید. ⚠️"
+    reply_text += "\n"
     reply_text += f"\nکیف پول: {user_dict['wallet']*1000:.2f} تومان"
     flag = False
     if user_dict['status'] != status:

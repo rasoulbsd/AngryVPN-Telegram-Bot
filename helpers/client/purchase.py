@@ -4,9 +4,14 @@ Purchase/payment functions for client flows.
 
 import telegram
 import telegram.ext as telext
-from helpers.initial import get_secrets_config, set_lang
-from helpers.bot_functions import after_automatic_payment
-from helpers.states import PAID
+from helpers.initial import get_secrets_config, set_lang, connect_to_database
+from helpers.bot_functions import after_automatic_payment, check_subscription
+from helpers.states import (
+    PAID, NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_RIAL,
+    NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_INTERCEPTOR,
+    NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL_INPUTED,
+    NEWUSER_PURCHASE_RIAL_ZARIN
+)
 import secrets as sc
 import requests
 
@@ -155,7 +160,7 @@ async def newuser_purchase_select_plan(update: telegram.Update, context: telext.
     # else:
 
     org = db_client[secrets['DBName']].orgs.find_one({'referral_code': update.effective_message.text})
-    if org == None:
+    if org is None:
         reply_text = "The referral code is not valid!"
         await context.user_data['menu'].edit_text(reply_text)
 
@@ -320,9 +325,9 @@ async def newuser_purchase_rial(update: telegram.Update, context: telext.Context
         reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("zarinpal_message") + ':\n\n' + client_functions_texts('cancel_to_abort')
         context.user_data['merchant_id'] = org_obj['payment_options']['currencies']['rial']['merchant_id']
 
-        description = u'خرید پلن'+query.data['plan']
-        email=''
-        mobile=''
+        # description = u'خرید پلن'+query.data['plan']
+        # email=''
+        # mobile=''
         secret_url=sc.token_urlsafe()
 
         url = "https://api.zarinpal.com/pg/v4/payment/request.json"
@@ -393,7 +398,7 @@ async def newuser_purchase_rial_inputed(update: telegram.Update, context: telext
             await context.bot.send_message(
                 chat_id=org_obj['ticketing_group_id'],
                 text=
-                    f"Payment\n"+
+                    "Payment\n"+
                     f"payment_method:{context.user_data['payment_method']}\n" +
                     (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") + 
                     f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" + 
@@ -409,7 +414,7 @@ async def newuser_purchase_rial_inputed(update: telegram.Update, context: telext
 
             try:
                 await update.effective_message.edit_text(client_functions_texts("thanks_for_payment"))
-            except:
+            except Exception:
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text=client_functions_texts("thanks_for_payment")
@@ -453,7 +458,7 @@ async def newuser_purchase_rial_inputed_image(update: telegram.Update, context: 
                 chat_id=org_obj['ticketing_group_id'],
                 photo=update.message.photo[0].file_id,
                 caption=
-                    f"Payment\n"+
+                    "Payment\n"+
                     f"payment_method:{context.user_data['payment_method']}\n" +
                     (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") + 
                     f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" + 
@@ -508,7 +513,7 @@ async def newuser_purchase_rial_inputed_document(update: telegram.Update, contex
                 chat_id=org_obj['ticketing_group_id'],
                 document=update.message.document.file_id,
                 caption=
-                    f"Payment\n"+
+                    "Payment\n"+
                     f"payment_method:{context.user_data['payment_method']}\n" +
                     (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") + 
                     f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" + 
