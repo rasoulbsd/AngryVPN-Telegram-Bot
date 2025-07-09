@@ -1,5 +1,5 @@
 import socket
-import contextlib
+import contextlib 
 import requests
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 
@@ -26,7 +26,6 @@ def get_port():
 
 
 def normalize_transaction_id(tr_id):
-    # EXP: https://tronscan.org/#/transaction/bf8249412c56ab861a154a55ee8757b75dfc8b77e04c156bd5058262a87c2f9e
     tr_id = tr_id.split("transaction/")
     if "tronscan.org" in tr_id:
         if len(tr_id) != 2:
@@ -38,7 +37,7 @@ def normalize_transaction_id(tr_id):
 
 
 def validate_transaction(payment_url, tr_id, org_name, plan):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
@@ -53,15 +52,8 @@ def validate_transaction(payment_url, tr_id, org_name, plan):
         reply_text += bot_functions_texts("contact_support") + f': {support_account}'
         db_client.close()
         return (False, reply_text)
-
     db_client.close()
 
-    # Check payment url based on user's org and selected plan
-    # if valid_payment_url != payment_url:
-    #     reply_text = f"Payment url is not valid or it is not same as the plan you have selected!\nPlease contact support: {support_account}"
-    #     return (False, reply_text)
-    # else:
-    #     return (True, )
     return (True, None)
 
 
@@ -82,4 +74,3 @@ async def verfiy_transaction(transaction_id, amount, dest_wallet , user_id, plan
         return (True, None)
     else:
         return (False, None)
-            
