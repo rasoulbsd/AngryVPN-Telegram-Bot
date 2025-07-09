@@ -2,19 +2,7 @@ import telegram
 import telegram.ext as telext
 from .initial import get_secrets_config, connect_to_database
 from .bot_functions import check_subscription, check_newuser
-
-############################# GLOBALS #############################
-(
-    ADMIN_MENU, 
-    ORG_MNGMNT_SELECT_OPTION, 
-    MY_ORG_MNGMNT_SELECT_OPTION,
-    ADDING_MEMEBER_TO_ORG,
-    LISTING_ORG_SERVERS,
-    CHOSING_SERVER_EDIT_ACTION,
-    CHANGING_SERVER_TRAFFIC
-) = range(7)
-
-(secrets, Config) = get_secrets_config()
+from .states import *
 
 
 ############################# Functions #############################

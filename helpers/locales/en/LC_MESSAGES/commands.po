@@ -80,3 +80,5 @@ msgstr "GB"
 
 msgid "T"
 msgstr "T"
+msgid "test_key"
+msgstr "Test Value"

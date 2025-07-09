@@ -9,24 +9,6 @@ import pandas as pd
 import uuid
 
 ############################# GLOBALS #############################
-(
-    ADMIN_MENU, 
-    ORG_MNGMNT_SELECT_OPTION, 
-    MY_ORG_MNGMNT_SELECT_OPTION,
-    ADDING_MEMEBER_TO_ORG,
-    BAN_MEMBER,
-    ADMIN_ANNOUNCEMENT,
-    ADMIN_CHARGE_ACCOUNT_USERID,
-    ADMIN_CHARGE_ACCOUNT_AMOUNT,
-    ADMIN_CHARGE_ACCOUNT_FINAL,
-    ADMIN_CHARGE_ALL_ACCOUNTS,
-    ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT,
-    LISTING_ORG_SERVERS,
-    CHOSING_SERVER_EDIT_ACTION,
-    CHANGING_SERVER_TRAFFIC,
-    ADMIN_DIRECT_MESSAGE_USERID,
-    ADMIN_DIRECT_MESSAGE_TEXT
-) = range(16)
 
 (secrets, Config) = get_secrets_config()
 org_admin_texts = set_lang(Config['default_language'], 'org_admin')

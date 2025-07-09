@@ -2,28 +2,11 @@ import telegram
 import telegram.ext as telext
 from .initial import get_secrets_config, connect_to_database, set_lang
 import uuid
-from .bot_functions import check_subscription, check_newuser, reset, manual_charge
-import re
-import requests
-import os, sys
+from .bot_functions import check_subscription, check_newuser, reset
+from .states import ADMIN_MENU
 
 ############################# GLOBALS #############################
-(
-    ADMIN_MENU, 
-    ORG_MNGMNT_SELECT_OPTION, 
-    MY_ORG_MNGMNT_SELECT_OPTION,
-    ADDING_MEMEBER_TO_ORG,
-    LISTING_ORG_SERVERS,
-    CHOSING_SERVER_EDIT_ACTION,
-    CHANGING_SERVER_TRAFFIC
-) = range(7)
-
-NEW_USER_MENU = range(1)
-
-# Stages
-DELIVER_SERVER = range(1)
-DELIVER_USER_VMESS_STATUS = range(1)
-DELIVER_REFRESH_VMESS = range(1)
+# Remove all local state definitions for states (ADMIN_MENU, etc.)
 
 (secrets, Config) = get_secrets_config()
 commands_texts = set_lang(Config['default_language'], 'commands')

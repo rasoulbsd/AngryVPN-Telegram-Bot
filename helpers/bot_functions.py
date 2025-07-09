@@ -3,21 +3,14 @@ import telegram.ext as telext
 import helpers.xuiAPI as xAPI
 import datetime
 from .initial import get_secrets_config, connect_to_database, set_lang
-import requests, json
-import datetime
-import time
-
+import requests
 
 MAX_RETRIES = 5
 DELAY_IN_SECONDS = 60
 ############################# GLOBALS #############################
 
-# Stages
-DELIVER_SERVER = range(1)
-DELIVER_USER_VMESS_STATUS = range(1)
-DELIVER_REFRESH_VMESS = range(1)
-
 (secrets, Config) = get_secrets_config()
+
 bot_functions_texts = set_lang(Config['default_language'], 'bot_functions')
 
 ############################# Functions #############################

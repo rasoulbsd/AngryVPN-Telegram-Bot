@@ -9,7 +9,13 @@ from helpers.main_admin import manage_orgs
 from helpers.org_admin import manage_my_org, add_member_to_my_org, add_member_to_my_org_inputed, list_my_org_servers, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed, ban_member, ban_member_inputed, admin_announcement, admin_announcement_inputed, admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt,accept_manualy_receipt,receipt_rejected,receipt_back,direct_message_userid_inputed,direct_message_text_inputed,direct_message
 from telegram.ext import Updater, CommandHandler,PicklePersistence
 from helpers.bot_functions import usage_exceed, show_users, update_all_users
-from helpers.states import *
+from helpers.states import (
+    DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, DELIVER_REFRESH_VMESS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
+    RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
+    NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
+    ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
+    REJECT, ACCEPT, REJECT_CHECK
+)
 
 
 ############################# INITIAL #############################
@@ -25,58 +31,6 @@ except Exception as e:
 PLANS = ['Basic', 'Family', 'Business', 'Enterprise', 'Premium', 'Ultimate']
 ############################# GLOBALS #############################
 # Stages
-NEW_USER_MENU = range(1)
-
-DELIVER_SERVER = range(1)
-
-DELIVER_USER_VMESS_STATUS = range(1)
-
-DELIVER_REFRESH_VMESS = range(1)
-
-ORG_MNGMNT_SELECT_OPTION = range(1) #For Main Admins
-
-MY_ORG_MNGMNT_SELECT_OPTION = range(1) #For Org Admins
-
-(
-    RECEIVE_TICKET,
-    USER_RECHARGE_ACCOUNT_SELECT_PLAN,
-    USER_RECHARGE_ACCOUNT,
-    USER_RECHARGE_ACCOUNT_RIAL_ZARIN,
-    USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID
-) = range(5)
-
-( 
-    NEWUSER_PURCHASE_SELECT_PLAN,
-    NEWUSER_PURCHASE_INTERCEPTOR,
-    NEWUSER_PURCHASE_INTERCEPTOR_INPUTED,
-    NEWUSER_PURCHASE_RIAL,
-    NEWUSER_PURCHASE_RIAL_INPUTED,
-    NEWUSER_PURCHASE_RIAL_ZARIN,
-    NUEWUSER_PURCHASE_RECEIPT_CRYPTO,
-    NEWUSER_PURCHASE_FINAL,
-    CHECK_TRANS_MANUALLY,
-    PAID
-) = range(10)
-
-(
-    ADMIN_MENU, 
-    ORG_MNGMNT_SELECT_OPTION, 
-    MY_ORG_MNGMNT_SELECT_OPTION,
-    ADDING_MEMEBER_TO_ORG,
-    BAN_MEMBER,
-    ADMIN_ANNOUNCEMENT,
-    ADMIN_CHARGE_ACCOUNT_USERID,
-    ADMIN_CHARGE_ACCOUNT_AMOUNT,
-    ADMIN_CHARGE_ACCOUNT_FINAL,
-    ADMIN_CHARGE_ALL_ACCOUNTS,
-    ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT,
-    LISTING_ORG_SERVERS,
-    CHOSING_SERVER_EDIT_ACTION,
-    CHANGING_SERVER_TRAFFIC,
-    ADMIN_DIRECT_MESSAGE_USERID,
-    ADMIN_DIRECT_MESSAGE_TEXT
-) = range(16)
-
 
 
 ############################# Main #############################
@@ -178,10 +132,10 @@ if __name__ == '__main__':
 
                 # telext.MessageHandler(telext.filters.Document.ALL, user_charge_acc_inputed)
             ],
-            NEWUSER_PURCHASE_RIAL_ZARIN: [
+            USER_RECHARGE_ACCOUNT_RIAL_ZARIN: [
                 telext.CallbackQueryHandler(payment, pattern='Pay now')
             ],
-            PAID: [
+            USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID: [
                 telext.CallbackQueryHandler(check_payment,pattern='Paid'),
                 
                 # telext.CallbackQueryHandler(NUEWUSER_PURCHASE_RECEIPT_CRYPTO, None),
