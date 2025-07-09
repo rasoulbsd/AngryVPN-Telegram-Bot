@@ -1,0 +1,74 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-07-29 11:01+0330\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: helpers/org_admin.py:47 helpers/org_admin.py:96 helpers/org_admin.py:134
+#: helpers/org_admin.py:199 helpers/org_admin.py:236 helpers/org_admin.py:301
+#: helpers/org_admin.py:352 helpers/org_admin.py:398 helpers/org_admin.py:455
+#: helpers/org_admin.py:496 helpers/org_admin.py:540 helpers/org_admin.py:577
+#: helpers/org_admin.py:623 helpers/org_admin.py:728 helpers/org_admin.py:814
+#: helpers/org_admin.py:887
+msgid "join_channel"
+msgstr "پیش از اینکه بتوانید از خدمات ربات استفاده کنید، باید در کانال‌های زیر عضو شوید!"
+
+#: helpers/org_admin.py:174
+msgid "after_adding_to_org"
+msgstr "شما به ارگانیزیشن اضافه شدید. از /menu استفاده کرده تا از سرویس‌های جدید ربات بتوانید استفاده کنید.\n لطفاً برای اطلاع از اعلامیه‌های مربوط به سرور و کانفیگ‌ها در کانال زیر عضو شوید"
+
+#: helpers/org_admin.py:277
+msgid "after_banned"
+msgstr "📵 اکانت شما بسته شده است! 📵"
+
+#: helpers/org_admin.py:277
+msgid "contact_support"
+msgstr "لطفاً با پشتیبانی ارتباط بگیرید"
+
+#: helpers/org_admin.py:603
+msgid "admin_announcement"
+msgstr "📢 اطلاعیه‌ی ادمین 📢"
+
+#: helpers/org_admin.py:788 helpers/org_admin.py:923
+msgid "new_limit"
+msgstr "محدودیت ترافیکی جدید اکانت شما"
+
+#: helpers/org_admin.py:788 helpers/org_admin.py:923 helpers/org_admin.py:1122
+msgid "account_charged_for"
+msgstr "اکانت شارژ شد به میزان"
+
+#: helpers/org_admin.py:1122
+msgid "verified_payment"
+msgstr "✅ تراکنش تأیید شد!"
+
+#: helpers/org_admin.py:1123
+msgid "after_added_to_org"
+msgstr "شما به ارگانیزیشن اضافه شدید.\n برای استفاده از قابلیت‌های جدید، در بات از طریق منو /menu اقدام کنید.\n همچنین برای اطلاع از اعلامیه‌های مربوط به سرورها و کانفیگ‌ها لطفاً در کانال زیر عضو شوید"
+
+#: helpers/org_admin.py:1123
+msgid "group"
+msgstr "گروه"
+
+#: helpers/org_admin.py:1123
+msgid "thanks_joining"
+msgstr "متشکریم که عضو شدید به"
+
+msgid "GB"
+msgstr "گیگ"
+
+msgid "T"
+msgstr "تومان"
+
+msgid "reject_payment"
+msgstr "❌ پرداخت شما تأیید نشد! ❌"

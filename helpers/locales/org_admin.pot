@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-07-29 13:26+0330\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: helpers/org_admin.py:47 helpers/org_admin.py:96 helpers/org_admin.py:134
+#: helpers/org_admin.py:199 helpers/org_admin.py:236 helpers/org_admin.py:301
+#: helpers/org_admin.py:352 helpers/org_admin.py:398 helpers/org_admin.py:455
+#: helpers/org_admin.py:496 helpers/org_admin.py:540 helpers/org_admin.py:577
+#: helpers/org_admin.py:623 helpers/org_admin.py:728 helpers/org_admin.py:814
+#: helpers/org_admin.py:887
+msgid "join_channel"
+msgstr ""
+
+#: helpers/org_admin.py:174
+msgid "after_adding_to_org"
+msgstr ""
+
+#: helpers/org_admin.py:277
+msgid "after_banned"
+msgstr ""
+
+#: helpers/org_admin.py:277
+msgid "contact_support"
+msgstr ""
+
+#: helpers/org_admin.py:517 helpers/org_admin.py:788 helpers/org_admin.py:793
+#: helpers/org_admin.py:867 helpers/org_admin.py:923 helpers/org_admin.py:933
+#: helpers/org_admin.py:1122
+msgid "GB"
+msgstr ""
+
+#: helpers/org_admin.py:603
+msgid "admin_announcement"
+msgstr ""
+
+#: helpers/org_admin.py:788 helpers/org_admin.py:923
+msgid "new_limit"
+msgstr ""
+
+#: helpers/org_admin.py:788 helpers/org_admin.py:923 helpers/org_admin.py:1122
+msgid "account_charged_for"
+msgstr ""
+
+#: helpers/org_admin.py:1122
+msgid "verified_payment"
+msgstr ""
+
+#: helpers/org_admin.py:1123
+msgid "after_added_to_org"
+msgstr ""
+
+#: helpers/org_admin.py:1123
+msgid "group"
+msgstr ""
+
+#: helpers/org_admin.py:1123
+msgid "thanks_joining"
+msgstr ""
+
+#: helpers/org_admin.py:1000
+msgid "reject_payment"
+msgstr ""

@@ -10,3 +10,7 @@ conversationbot
 */.DS_Store
 .venv
 .venv2
+*refresh.log
+*.png
+docs/
+*.pickle

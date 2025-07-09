@@ -1,0 +1,283 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-07-29 13:26+0330\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: helpers/client_functions.py:75 helpers/client_functions.py:280
+#: helpers/client_functions.py:381 helpers/client_functions.py:522
+#: helpers/client_functions.py:641 helpers/client_functions.py:678
+#: helpers/client_functions.py:740 helpers/client_functions.py:783
+#: helpers/client_functions.py:860 helpers/client_functions.py:927
+#: helpers/client_functions.py:1066 helpers/client_functions.py:1123
+#: helpers/client_functions.py:1208 helpers/client_functions.py:1287
+#: helpers/client_functions.py:1384 helpers/client_functions.py:1435
+#: helpers/client_functions.py:1651 helpers/client_functions.py:1710
+#: helpers/client_functions.py:1755 helpers/client_functions.py:1833
+msgid "join_channel"
+msgstr ""
+
+#: helpers/client_functions.py:86 helpers/client_functions.py:292
+#: helpers/client_functions.py:392 helpers/client_functions.py:531
+#: helpers/client_functions.py:688 helpers/client_functions.py:1075
+#: helpers/client_functions.py:1132 helpers/client_functions.py:1217
+#: helpers/client_functions.py:1296 helpers/client_functions.py:1444
+#: helpers/client_functions.py:1764 helpers/client_functions.py:1842
+msgid "user_not_found"
+msgstr ""
+
+#: helpers/client_functions.py:147
+msgid "no_server_available"
+msgstr ""
+
+#: helpers/client_functions.py:157 helpers/client_functions.py:314
+#: helpers/client_functions.py:440 helpers/client_functions.py:660
+#: helpers/client_functions.py:765 helpers/client_functions.py:820
+#: helpers/client_functions.py:888 helpers/client_functions.py:943
+#: helpers/client_functions.py:994 helpers/client_functions.py:1416
+#: helpers/client_functions.py:1682 helpers/client_functions.py:1736
+msgid "general_cancel"
+msgstr ""
+
+#: helpers/client_functions.py:161 helpers/client_functions.py:419
+msgid "select_server"
+msgstr ""
+
+#: helpers/client_functions.py:162 helpers/client_functions.py:420
+msgid "servers_list"
+msgstr ""
+
+#: helpers/client_functions.py:212
+msgid "error_account_creation_api_conflict"
+msgstr ""
+
+#: helpers/client_functions.py:224
+msgid "error_failed_account_creations"
+msgstr ""
+
+#: helpers/client_functions.py:231 helpers/client_functions.py:492
+msgid "error_get_config_api_conflict"
+msgstr ""
+
+#: helpers/client_functions.py:235 helpers/client_functions.py:247
+msgid "account_ready"
+msgstr ""
+
+#: helpers/client_functions.py:302 helpers/client_functions.py:318
+#: helpers/client_functions.py:402 helpers/client_functions.py:540
+msgid "get_an_account"
+msgstr ""
+
+#: helpers/client_functions.py:345
+msgid "error_get_account_status"
+msgstr ""
+
+#: helpers/client_functions.py:351
+msgid "unlimited"
+msgstr ""
+
+#: helpers/client_functions.py:351 helpers/client_functions.py:356
+#: helpers/client_functions.py:616 helpers/client_functions.py:1605
+msgid "GB"
+msgstr ""
+
+#: helpers/client_functions.py:352
+msgid "account_status"
+msgstr ""
+
+#: helpers/client_functions.py:353
+msgid "username"
+msgstr ""
+
+#: helpers/client_functions.py:354
+msgid "server_name"
+msgstr ""
+
+#: helpers/client_functions.py:355
+msgid "active"
+msgstr ""
+
+#: helpers/client_functions.py:356
+msgid "upload_download"
+msgstr ""
+
+#: helpers/client_functions.py:357
+msgid "used/limit"
+msgstr ""
+
+#: helpers/client_functions.py:485
+msgid "refreshed_vmess"
+msgstr ""
+
+#: helpers/client_functions.py:539 helpers/client_functions.py:545
+#: helpers/client_functions.py:559 helpers/client_functions.py:586
+#: helpers/client_functions.py:594
+msgid "your_user_id"
+msgstr ""
+
+#: helpers/client_functions.py:560
+msgid "join_org"
+msgstr ""
+
+#: helpers/client_functions.py:587 helpers/client_functions.py:595
+msgid "contact_support"
+msgstr ""
+
+#: helpers/client_functions.py:587 helpers/client_functions.py:595
+msgid "error_code"
+msgstr ""
+
+#: helpers/client_functions.py:615
+msgid "usage"
+msgstr ""
+
+#: helpers/client_functions.py:616
+msgid "usage_limit"
+msgstr ""
+
+#: helpers/client_functions.py:657
+msgid "send_ticket"
+msgstr ""
+
+#: helpers/client_functions.py:657 helpers/client_functions.py:762
+#: helpers/client_functions.py:811 helpers/client_functions.py:941
+#: helpers/client_functions.py:954 helpers/client_functions.py:1412
+#: helpers/client_functions.py:1667 helpers/client_functions.py:1732
+msgid "cancel_to_abort"
+msgstr ""
+
+#: helpers/client_functions.py:720
+msgid "thanks_ticket"
+msgstr ""
+
+#: helpers/client_functions.py:762
+msgid "referal_code"
+msgstr ""
+
+#: helpers/client_functions.py:811
+msgid "choose_plan"
+msgstr ""
+
+#: helpers/client_functions.py:938
+msgid "transaction_receipt"
+msgstr ""
+
+#: helpers/client_functions.py:938 helpers/client_functions.py:954
+#: helpers/client_functions.py:1409 helpers/client_functions.py:1542
+#: helpers/client_functions.py:1729
+msgid "selected_plan"
+msgstr ""
+
+#: helpers/client_functions.py:940 helpers/client_functions.py:1731
+msgid "card_number"
+msgstr ""
+
+#: helpers/client_functions.py:954
+msgid "zarinpal_message"
+msgstr ""
+
+#: helpers/client_functions.py:993
+msgid "pay_now"
+msgstr ""
+
+#: helpers/client_functions.py:1046 helpers/client_functions.py:1048
+msgid "not_yet_verified_payment"
+msgstr ""
+
+#: helpers/client_functions.py:1107 helpers/client_functions.py:1193
+#: helpers/client_functions.py:1269 helpers/client_functions.py:1357
+#: helpers/client_functions.py:1818 helpers/client_functions.py:1894
+msgid "thanks_for_payment"
+msgstr ""
+
+#: helpers/client_functions.py:1410
+msgid "send_token"
+msgstr ""
+
+#: helpers/client_functions.py:1410
+msgid "to_our_wallet"
+msgstr ""
+
+#: helpers/client_functions.py:1410
+msgid "tron"
+msgstr ""
+
+#: helpers/client_functions.py:1411
+msgid "crypto_wallet_link"
+msgstr ""
+
+#: helpers/client_functions.py:1412
+msgid "send_transaction_id"
+msgstr ""
+
+#: helpers/client_functions.py:1493
+msgid "verify_crypto_manually"
+msgstr ""
+
+#: helpers/client_functions.py:1497
+msgid "verify_crypto_manually2"
+msgstr ""
+
+#: helpers/client_functions.py:1501
+msgid "check_crypto_button"
+msgstr ""
+
+#: helpers/client_functions.py:1528
+msgid "already_verified_crypto_payment"
+msgstr ""
+
+#: helpers/client_functions.py:1541
+msgid "failed_crypto_transaction"
+msgstr ""
+
+#: helpers/client_functions.py:1542
+msgid "error_wrong_amount"
+msgstr ""
+
+#: helpers/client_functions.py:1542
+msgid "error_wrong_trans_id"
+msgstr ""
+
+#: helpers/client_functions.py:1543
+msgid "check_trans_manually_2"
+msgstr ""
+
+#: helpers/client_functions.py:1544
+msgid "contact_us_in_advance"
+msgstr ""
+
+#: helpers/client_functions.py:1574
+msgid "not_verified_payment"
+msgstr ""
+
+#: helpers/client_functions.py:1605
+msgid "verified_account"
+msgstr ""
+
+#: helpers/client_functions.py:1606
+msgid "added_to_org"
+msgstr ""
+
+#: helpers/client_functions.py:1606
+msgid "group"
+msgstr ""
+
+#: helpers/client_functions.py:1667
+msgid "choose_plan2"
+msgstr ""
+
+#: helpers/client_functions.py:1729
+msgid "send_crypto_transaction_receipt"
+msgstr ""
+
