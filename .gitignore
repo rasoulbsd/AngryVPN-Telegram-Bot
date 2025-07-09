@@ -14,3 +14,5 @@ conversationbot
 *.png
 docs/
 *.pickle
+*/.DS_Store
+.DS_Store
