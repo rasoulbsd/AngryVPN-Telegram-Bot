@@ -44,7 +44,7 @@ def normalize_transaction_id(tr_id):
 def validate_transaction(payment_url, tr_id, org_name, plan):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
@@ -90,7 +90,7 @@ async def verfiy_transaction(transaction_id, amount, dest_wallet , user_id, plan
 async def check_newuser(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
     org_names = [i['name'] for i in db_client[secrets['DBName']].orgs.find(filter={'active': True}, projection={'name': True})]
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_chat.id})
@@ -111,7 +111,7 @@ async def check_newuser(update: telegram.Update, context: telext.ContextTypes.DE
 def update_all_users():
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
     
     db_client[secrets['DBName']].users.update_many({},
@@ -131,7 +131,7 @@ async def usage_warning(update: telegram.Update, context: telext.ContextTypes.DE
 async def usage_exceed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     exceed_users = []
@@ -156,7 +156,7 @@ async def usage_exceed(update: telegram.Update, context: telext.ContextTypes.DEF
 def show_users():
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     user_objs = db_client[secrets['DBName']].users.find()
@@ -170,7 +170,7 @@ def show_users():
 async def after_automatic_payment(update, context):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if context.user_data['is_new_user']:
@@ -276,7 +276,7 @@ async def after_automatic_payment(update, context):
 async def manual_charge(user_id, charge_amount):
         try: 
             db_client = connect_to_database(secrets['DBConString'])
-        except Exception as e:
+        except Exception:
             print("Failed to connect to the database!")
 
         server_dict = db_client[secrets['DBName']].servers.find_one({'name': "Mahsa-Test"})

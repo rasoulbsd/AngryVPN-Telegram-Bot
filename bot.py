@@ -3,12 +3,16 @@ from helpers.initial import connect_to_database, get_secrets_config
 from dotenv import load_dotenv
 
 from helpers.commands import start, menu, cancel, admin, cancel_command
-from helpers.client_functions import get_vmess_start, deliver_vmess, get_status, deliver_vmess_status, refresh_vmess, deliver_refresh_vmess, get_userinfo, receive_ticket, receive_ticket_inputed, user_charge_account, user_charge_account_with_plan, user_charge_acc_inputed,user_charge_acc_inputed_image,check_payment,payment
-from helpers.client_functions import newuser_purchase, newuser_purchase_select_plan, newuser_purchase_receipt_crypto, newuser_purchase_receipt_crypto_inputed,newuser_purchase_rial_inputed_image, newuser_purchase_crypto_check_manually, newuser_purchase_interceptor, newuser_purchase_interceptor_inputed, newuser_purchase_rial, newuser_purchase_rial_inputed,newuser_purchase_rial_inputed_document,user_charge_rial_inputed_document
+from helpers.client.server import get_vmess_start, deliver_vmess, get_status, deliver_vmess_status, refresh_vmess, deliver_refresh_vmess
+from helpers.client.user import get_userinfo
+from helpers.client.ticket import receive_ticket, receive_ticket_inputed
+from helpers.client.charge import user_charge_account, user_charge_account_with_plan, user_charge_acc_inputed, user_charge_acc_inputed_image, user_charge_rial_inputed_document
+from helpers.client.purchase import check_payment, payment as pay, newuser_purchase, newuser_purchase_select_plan, newuser_purchase_interceptor, newuser_purchase_interceptor_inputed, newuser_purchase_rial, newuser_purchase_rial_inputed, newuser_purchase_rial_inputed_image, newuser_purchase_rial_inputed_document
+from helpers.client.crypto import newuser_purchase_receipt_crypto, newuser_purchase_receipt_crypto_inputed, newuser_purchase_crypto_check_manually
 from helpers.main_admin import manage_orgs
-from helpers.org_admin import manage_my_org, add_member_to_my_org, add_member_to_my_org_inputed, list_my_org_servers, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed, ban_member, ban_member_inputed, admin_announcement, admin_announcement_inputed, admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt,accept_manualy_receipt,receipt_rejected,receipt_back,direct_message_userid_inputed,direct_message_text_inputed,direct_message
-from telegram.ext import Updater, CommandHandler,PicklePersistence
-from helpers.bot_functions import usage_exceed, show_users, update_all_users
+from helpers.org_admin import manage_my_org, add_member_to_my_org, add_member_to_my_org_inputed, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed, ban_member, ban_member_inputed, admin_announcement, admin_announcement_inputed, admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt,accept_manualy_receipt,receipt_rejected,receipt_back,direct_message_userid_inputed,direct_message_text_inputed,direct_message
+from telegram.ext import PicklePersistence
+from helpers.bot_functions import usage_exceed
 from helpers.states import (
     DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, DELIVER_REFRESH_VMESS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
     RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
@@ -25,7 +29,7 @@ load_dotenv()
 
 try: 
     db_client = connect_to_database(secrets['DBConString'])
-except Exception as e:
+except Exception:
     print("Failed to connect to the database!")
 
 PLANS = ['Basic', 'Family', 'Business', 'Enterprise', 'Premium', 'Ultimate']
@@ -36,10 +40,6 @@ PLANS = ['Basic', 'Family', 'Business', 'Enterprise', 'Premium', 'Ultimate']
 ############################# Main #############################
 
 if __name__ == '__main__':
-    # show_users()
-    # telext.CallbackContext.args = [db_client]
-    # context.user_data[key] = value
-    # update_all_users()
     persistence = PicklePersistence(filepath="conversationbot")
     application = telext.ApplicationBuilder().token(secrets['BotAPI']).arbitrary_callback_data(True).persistence(persistence).build()
 
@@ -59,7 +59,6 @@ if __name__ == '__main__':
         fallbacks=[cancel_handler],
         per_message=True,
         allow_reentry=False,
-        # persistent=True,
         name="status_handler"
     )
 
@@ -73,7 +72,6 @@ if __name__ == '__main__':
         fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
         per_message=True,
         allow_reentry=False,
-        # persistent=True,
         name="vmess_handler"
     )
 
@@ -87,7 +85,6 @@ if __name__ == '__main__':
         fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
         per_message=True,
         allow_reentry=False,
-        # persistent=True,
         name="refresh_vmess_handler"
     )
 
@@ -97,7 +94,6 @@ if __name__ == '__main__':
         fallbacks=[],
         per_message=True,
         allow_reentry=False,
-        # persistent=True,
         name="userinfo_handler"
     )
 
@@ -110,11 +106,9 @@ if __name__ == '__main__':
         },
         fallbacks=[
             telext.CallbackQueryHandler(cancel, pattern='^Cancel$')
-            # telext.CommandHandler('cancel', cancel_command)
         ],
         per_message=False,
         allow_reentry=True,
-        # persistent=True,
         name="receive_ticket_handler"
     )
 
@@ -128,91 +122,62 @@ if __name__ == '__main__':
                 telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), user_charge_acc_inputed),
                 telext.MessageHandler(telext.filters.PHOTO, user_charge_acc_inputed_image),
                 telext.MessageHandler(telext.filters.Document.ALL, user_charge_rial_inputed_document),
-                # telext.MessageHandler(telext.filters.Text, user_charge_acc_inputed)
-
-                # telext.MessageHandler(telext.filters.Document.ALL, user_charge_acc_inputed)
             ],
             USER_RECHARGE_ACCOUNT_RIAL_ZARIN: [
-                telext.CallbackQueryHandler(payment, pattern='Pay now')
+                telext.CallbackQueryHandler(pay, pattern='Pay now')
             ],
             USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID: [
                 telext.CallbackQueryHandler(check_payment,pattern='Paid'),
                 
-                # telext.CallbackQueryHandler(NUEWUSER_PURCHASE_RECEIPT_CRYPTO, None),
             ],
         },
         fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
-        # fallbacks=[
-        #     telext.CallbackQueryHandler(cancel_command, pattern='^Cancel$'),
-        #     telext.CommandHandler('cancel', cancel_command)
-        # ],
         per_message=False,
         allow_reentry=True,
-        # persistent=True,
         name="charge_acc_handler"
     )
 
     purchase_acc_handler = telext.ConversationHandler(
         entry_points=[telext.CallbackQueryHandler(newuser_purchase, pattern='^Purchase Account$')],
         states={
-            # NEWUSER_PURCHASE : [
-            #     telext.MessageHandler(telext.filters.Regex("^[0-9]*$"), newuser_purchase_select_plan)
-            # ],
             NEWUSER_PURCHASE_SELECT_PLAN: [
                 telext.MessageHandler(telext.filters.Regex("^[0-9]*$"), newuser_purchase_select_plan)
-                # telext.CallbackQueryHandler(newuser_purchase_select_plan, pattern=lambda z: z.get('plan', '') in PLANS),
             ],
             NEWUSER_PURCHASE_INTERCEPTOR: [
                 telext.CallbackQueryHandler(newuser_purchase_interceptor, pattern=lambda z: z.get('plan', '') in PLANS),
             ],
             NEWUSER_PURCHASE_INTERCEPTOR_INPUTED: [
                 telext.CallbackQueryHandler(newuser_purchase_interceptor_inputed, pattern=lambda z: z.get('method', '') == 'rial' or z.get('method', '') == 'tron'),
-                # telext.CallbackQueryHandler(newuser_purchase_interceptor_inputed, None),
             ],
             NEWUSER_PURCHASE_RIAL: [
-                # telext.CallbackQueryHandler(newuser_purchase_rial, pattern=lambda z: z.get('plan', '') in PLANS),
                 
                 telext.CallbackQueryHandler(newuser_purchase_rial, pattern=None),
-                # telext.CallbackQueryHandler(NUEWUSER_PURCHASE_RECEIPT_CRYPTO, None),
             ],
             NEWUSER_PURCHASE_RIAL_INPUTED: [
                 telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), newuser_purchase_rial_inputed),
                 telext.MessageHandler(telext.filters.PHOTO, newuser_purchase_rial_inputed_image),
                 telext.MessageHandler(telext.filters.Document.ALL, newuser_purchase_rial_inputed_document),
-                # telext.CallbackQueryHandler(NUEWUSER_PURCHASE_RECEIPT_CRYPTO, None),
             ],
             NEWUSER_PURCHASE_RIAL_ZARIN: [
-                telext.CallbackQueryHandler(payment, pattern='Pay now')
+                telext.CallbackQueryHandler(pay, pattern='Pay now')
             ],
             PAID: [
                 telext.CallbackQueryHandler(check_payment,pattern='Paid'),
                 
-                # telext.CallbackQueryHandler(NUEWUSER_PURCHASE_RECEIPT_CRYPTO, None),
             ],
             NUEWUSER_PURCHASE_RECEIPT_CRYPTO: [
                 telext.CallbackQueryHandler(newuser_purchase_receipt_crypto, pattern=lambda z: z.get('plan', '') in PLANS),
             ],
             NEWUSER_PURCHASE_FINAL: [
                 telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), newuser_purchase_receipt_crypto_inputed)
-                # telext.MessageHandler(telext.filters.Text, user_charge_acc_inputed)
-
-                # telext.MessageHandler(telext.filters.Document.ALL, user_charge_acc_inputed)
             ],
             CHECK_TRANS_MANUALLY: [
                 telext.CallbackQueryHandler(newuser_purchase_crypto_check_manually, pattern='^Check Manually$'),
-                # telext.MessageHandler(telext.filters.Text, user_charge_acc_inputed)
-
-                # telext.MessageHandler(telext.filters.Document.ALL, user_charge_acc_inputed)
             ]
         },
         fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
-        # fallbacks=[
-        #     telext.CallbackQueryHandler(cancel_command, pattern='^Cancel$'),
-        #     telext.CommandHandler('cancel', cancel_command)
-        # ],
         per_message=False,
         allow_reentry=True,
-        # persistent=True,
         name="purchase_acc_handler"
     )
 
@@ -287,7 +252,6 @@ if __name__ == '__main__':
         ],
         per_message=False,
         allow_reentry=False,
-        # persistent=True,
         name="admin_handler"
     )
 

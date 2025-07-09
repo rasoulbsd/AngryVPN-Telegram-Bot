@@ -1,4 +1,3 @@
-import pytest
 import helpers.xuiAPI as xui
 
 def test_import():

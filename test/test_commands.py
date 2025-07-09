@@ -1,4 +1,3 @@
-import pytest
 import helpers.commands as cmds
 
 def test_import():

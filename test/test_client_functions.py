@@ -1,6 +1,7 @@
-import pytest
-import helpers.client_functions as cf
+from helpers.client.server import get_vmess_start
+from helpers.client.ticket import receive_ticket
+
 
 def test_import():
-    assert hasattr(cf, 'get_vmess_start')
-    assert hasattr(cf, 'receive_ticket') 
+    assert callable(get_vmess_start)
+    assert callable(receive_ticket) 

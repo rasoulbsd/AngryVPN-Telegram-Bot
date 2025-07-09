@@ -1,4 +1,3 @@
-import pytest
 import helpers.org_admin as oa
 
 def test_import():

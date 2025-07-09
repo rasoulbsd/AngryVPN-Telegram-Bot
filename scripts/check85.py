@@ -1,10 +1,5 @@
-from telegram import Update,ReplyKeyboardMarkup,constants,Bot
-from telegram.ext import filters, MessageHandler,ApplicationBuilder, ContextTypes, CommandHandler,ConversationHandler
-import asyncio
-from helpers.initial import connect_to_database, get_secrets_config
-import helpers.xuiAPI as xAPI
-import pickle
-import telegram
+from telegram import Bot
+from helpers.initial import get_secrets_config
 
 # asda
 (secrets, Config) = get_secrets_config()

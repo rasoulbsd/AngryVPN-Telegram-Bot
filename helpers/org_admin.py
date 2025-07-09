@@ -2,7 +2,7 @@ import telegram
 import telegram.ext as telext
 import datetime
 from .initial import get_secrets_config, connect_to_database, set_lang
-from .bot_functions import check_subscription, check_newuser
+from .bot_functions import check_subscription
 import helpers.xuiAPI as xAPI
 from helpers.states import *
 import pandas as pd
@@ -18,7 +18,7 @@ org_admin_texts = set_lang(Config['default_language'], 'org_admin')
 async def manage_my_org(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -68,7 +68,7 @@ async def manage_my_org(update: telegram.Update, context: telext.ContextTypes.DE
 async def add_member_to_my_org(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -112,7 +112,7 @@ async def add_member_to_my_org(update: telegram.Update, context: telext.ContextT
 async def add_member_to_my_org_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -171,7 +171,7 @@ async def add_member_to_my_org_inputed(update: telegram.Update, context: telext.
 async def ban_member(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -214,7 +214,7 @@ async def ban_member(update: telegram.Update, context: telext.ContextTypes.DEFAU
 async def ban_member_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -273,7 +273,7 @@ async def ban_member_inputed(update: telegram.Update, context: telext.ContextTyp
 async def list_my_org_servers(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -324,7 +324,7 @@ async def list_my_org_servers(update: telegram.Update, context: telext.ContextTy
 async def manage_my_org_server(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -374,7 +374,7 @@ async def manage_my_org_server(update: telegram.Update, context: telext.ContextT
 async def switch_server_active_join(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -431,7 +431,7 @@ async def switch_server_active_join(update: telegram.Update, context: telext.Con
 async def change_server_traffic(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -474,7 +474,7 @@ async def change_server_traffic(update: telegram.Update, context: telext.Context
 async def change_server_traffic_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -512,7 +512,7 @@ async def change_server_traffic_inputed(update: telegram.Update, context: telext
 async def admin_announcement(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -555,7 +555,7 @@ async def admin_announcement(update: telegram.Update, context: telext.ContextTyp
 async def admin_announcement_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -598,7 +598,7 @@ async def admin_announcement_inputed(update: telegram.Update, context: telext.Co
 async def direct_message_userid_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -646,7 +646,7 @@ async def direct_message_userid_inputed(update: telegram.Update, context: telext
 async def direct_message_text_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
@@ -681,7 +681,7 @@ async def direct_message_text_inputed(update: telegram.Update, context: telext.C
 async def direct_message(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -728,7 +728,7 @@ async def direct_message(update: telegram.Update, context: telext.ContextTypes.D
 async def admin_charge_account(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -840,7 +840,7 @@ async def admin_charge_account_with_server_and_userid(update: telegram.Update, c
 async def admin_charge_account_with_server_and_userid_and_amount(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -920,7 +920,7 @@ async def admin_charge_account_with_server_and_userid_and_amount(update: telegra
 async def admin_charge_all_accounts(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query
@@ -999,7 +999,7 @@ async def admin_charge_all_accounts_with_server(update: telegram.Update, context
 async def admin_charge_all_accounts_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -1186,7 +1186,7 @@ def get_user_credentials(effective_message):
 async def accept_automatic_receipt(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
     credentials = get_user_credentials(update.effective_message)
 

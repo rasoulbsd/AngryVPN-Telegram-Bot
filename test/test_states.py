@@ -1,4 +1,3 @@
-import pytest
 import helpers.states as st
 
 def test_import():

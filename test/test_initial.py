@@ -1,4 +1,3 @@
-import pytest
 import helpers.initial as ini
 
 def test_import():

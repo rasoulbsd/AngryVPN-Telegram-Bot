@@ -8,7 +8,7 @@ async def update_wallets():
     (secrets, Config) = get_secrets_config()
     try:
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
         return
     server_dict = list(db_client[secrets['DBName']].servers.find({

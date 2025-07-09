@@ -1,7 +1,7 @@
 import telegram
 import telegram.ext as telext
-from .initial import get_secrets_config, connect_to_database
-from .bot_functions import check_subscription, check_newuser
+from .initial import connect_to_database
+from .bot_functions import check_subscription
 from .states import *
 
 
@@ -10,7 +10,7 @@ from .states import *
 async def manage_orgs(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     query = update.callback_query

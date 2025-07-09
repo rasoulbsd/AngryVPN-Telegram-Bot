@@ -17,7 +17,7 @@ commands_texts = set_lang(Config['default_language'], 'commands')
 async def start(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -62,7 +62,7 @@ async def menu(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYP
     reset(update, context)
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_chat.id})
@@ -110,7 +110,7 @@ async def menu(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYP
 async def admin(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try: 
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception as e:
+    except Exception:
         print("Failed to connect to the database!")
 
     if not await check_subscription(update):
@@ -170,8 +170,3 @@ async def cancel_command(update: telegram.Update, context: telext.ContextTypes.D
     # # application.add_handler(menu_handler)
     await update.effective_message.reply_text('Canceled!')
     raise telext.ApplicationHandlerStop(telext.ConversationHandler.END)
-
-# async def end_handler(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-#     # # application.add_handler(menu_handler)
-#     # await update.effective_message.reply_text('Canceled!')
-#     raise telext.ApplicationHandlerStop(telext.ConversationHandler.END)
