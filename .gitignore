@@ -1,0 +1,12 @@
+__pycache__/
+venv/
+**/*secrets.*
+**/*.ipynb
+*/__pycache__
+admin-docs/
+conversationbot
+#.env
+.DS_Store
+*/.DS_Store
+.venv
+.venv2
