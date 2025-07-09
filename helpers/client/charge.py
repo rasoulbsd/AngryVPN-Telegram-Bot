@@ -298,15 +298,20 @@ async def user_charge_rial_inputed_document(update: telegram.Update, context: te
                 caption=(
                     f"Recharg\n"
                     f"payment_method:{context.user_data['payment_method']}\n"
-                    f"{f'username:@{context.user_data['username']}\n' if (context.user_data['username'] is not None) else ''}"
-                    f"user_id:{context.user_data['user_id']}\n"
-                    f"full_name:{context.user_data['full_name']}\n"
-                    f"Plan:{context.user_data['plan']}\n"
-                    f"org:{context.user_data['org']}\n"
-                    f"pay_amount:{context.user_data['pay_amount']}, included "
-                    f"{100-100*context.user_data['discount']}% discount\n"
-                    f"currency:rial\n"
-                    f"{white_message}"
+                    + (
+                        f"username:@{context.user_data['username']}\n"
+                        if context.user_data['username'] is not None else ""
+                    )
+                    + f"user_id:{context.user_data['user_id']}\n"
+                    + f"full_name:{context.user_data['full_name']}\n"
+                    + f"Plan:{context.user_data['plan']}\n"
+                    + f"org:{context.user_data['org']}\n"
+                    + (
+                        f"pay_amount:{context.user_data['pay_amount']}, included "
+                        f"{100-100*context.user_data['discount']}% discount\n"
+                    )
+                    + f"currency:rial\n"
+                    + f"{white_message}"
                 ),
                 reply_to_message_id=(
                     secrets['test_topic_id']
