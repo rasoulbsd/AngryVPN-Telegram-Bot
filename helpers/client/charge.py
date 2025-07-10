@@ -47,15 +47,22 @@ async def user_charge_account(update: telegram.Update, context: telext.ContextTy
     else:
         discount = 1
     context.user_data['discount'] = discount
+    if 'rial' in org_obj['payment_options']['currencies']:
+        context.user_data['currency'] = 'rial'
+        currency_icon = 'T'
+    else:
+        context.user_data['currency'] = 'cad'
+        currency_icon = 'CAD'
     keyboard = [
-        [telegram.InlineKeyboardButton(f"{plan}: {round(int(org_obj['payment_options']['currencies']['rial']['plans'][plan]) * discount)} T" + (f" ({100-100*discount}% off)" if (100-100*discount != 0) else "")
-                                       , callback_data={'plan': plan})] for plan in org_obj['payment_options']['currencies']['rial']['plans']
+        [telegram.InlineKeyboardButton(f"{plan}: {round(int(org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][plan]) * discount)} {currency_icon}" + (f" ({100-100*discount}% off)" if (100-100*discount != 0) else "")
+                                    , callback_data={'plan': plan})] for plan in org_obj['payment_options']['currencies'][context.user_data['currency']]['plans']
     ]
     keyboard.extend([[telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data='Cancel')]])
     reply_markup = telegram.InlineKeyboardMarkup(keyboard)
     await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
     db_client.close()
     return USER_RECHARGE_ACCOUNT_SELECT_PLAN
+
 
 async def user_charge_account_with_plan(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
@@ -78,11 +85,20 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
         return telext.ConversationHandler.END
     org_obj = context.user_data['org_obj']
     context.user_data['is_new_user'] = False
-    context.user_data['payment_method'] = org_obj['payment_options']['currencies']['rial']['method']
+
+    context.user_data['payment_method'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['method']
     if context.user_data['payment_method'] == 'e-transfer':
-        reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("send_crypto_transaction_receipt") + ':'
-        if "card_number" in org_obj['payment_options']['currencies']['rial'] and org_obj['payment_options']['currencies']['rial']['card_number'] != "":
-            reply_text += '\n\n' + client_functions_texts("card_number") + f': `{org_obj["payment_options"]["currencies"]["rial"]["card_number"]}`'
+        if context.user_data['currency'] == 'rial':
+            reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("send_crypto_transaction_receipt") + ':'
+            if "card_number" in org_obj['payment_options']['currencies'][context.user_data['currency']] and org_obj['payment_options']['currencies'][context.user_data['currency']]['card_number'] != "":
+                reply_text += '\n\n' + client_functions_texts("card_number") + f': `{org_obj["payment_options"]["currencies"][context.user_data['currency']]["card_number"]}`'
+        else:
+            reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("etransfer_instruction") + ":"
+        if "email" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['email'] != "":
+            reply_text += '\n\n' + client_functions_texts("email") + f': `{org_obj["payment_options"]["currencies"]["cad"]["email"]}`'
+        elif "phone_number" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['phone_number'] != "":
+            reply_text += '\n\n' + client_functions_texts("phone_number") + f': `{org_obj["payment_options"]["currencies"]["cad"]["phone_number"]}`'
+
         reply_text += '\n\n' + client_functions_texts("cancel_to_abort")
         keyboard = [
             [telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data='Cancel')]
@@ -158,7 +174,7 @@ async def user_charge_acc_inputed(update: telegram.Update, context: telext.Conte
                 context.user_data['username'] = update.effective_chat.username
                 context.user_data['user_id'] = update.effective_chat.id
                 context.user_data['org'] = org_name
-                context.user_data['pay_amount'] = org_obj['payment_options']['currencies']['rial']['plans'][context.user_data['plan']]
+                context.user_data['pay_amount'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][context.user_data['plan']]
                 await context.bot.send_message(
                     chat_id=org_obj['ticketing_group_id'],
                     text=
@@ -169,7 +185,7 @@ async def user_charge_acc_inputed(update: telegram.Update, context: telext.Conte
                         f"Plan:{context.user_data['plan']}\n" +
                         f"org:{context.user_data['org']}\n"+
                         f"pay_amount:{context.user_data['pay_amount']}, included {100-100*context.user_data['discount']}% discount\n" +
-                        "currency:rial\n"+
+                        f"currency:{context.user_data['currency']}\n"+
                         "-------------------------\n" +
                         context.user_data['payment_receipt'],
                     reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],

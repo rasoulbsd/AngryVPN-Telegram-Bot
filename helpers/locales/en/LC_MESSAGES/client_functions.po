@@ -293,3 +293,12 @@ msgstr "📱 Your Servers"
 
 msgid "new_servers"
 msgstr "🔴 New Servers"
+
+msgid "etransfer_instruction"
+msgstr "Please e-transfer the amount to this contact and send a reciept or screenshot of the transaction here"
+
+msgid "email"
+msgstr "Email"
+
+msgid "phone_number"
+msgstr "Phone Number"

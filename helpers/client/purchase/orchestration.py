@@ -79,7 +79,7 @@ async def newuser_purchase_select_plan(update: telegram.Update, context: telext.
     context.user_data['org'] = org['name']
 
     reply_text = client_functions_texts("choose_plan") + "\n\n" + client_functions_texts("cancel_to_abort")
-    
+
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': int(update.effective_chat.id)})
     context.user_data['user_dict'] = user_dict
     if ('discount' in user_dict and user_dict['discount']):
@@ -88,8 +88,12 @@ async def newuser_purchase_select_plan(update: telegram.Update, context: telext.
         discount = 1
     context.user_data['discount'] = discount
 
+    if 'rial' in org['payment_options']['currencies']:
+        currency_icon = 'T'
+    else:
+        currency_icon = 'CAD'
     keyboard = [
-        [telegram.InlineKeyboardButton(f"{plan}: {round(int(org['payment_options']['currencies']['rial']['plans'][plan]) * discount)} T" + (f" ({100-100*discount}% off)" if (100-100*discount != 0) else "")
+        [telegram.InlineKeyboardButton(f"{plan}: {round(int(org['payment_options']['currencies']['rial']['plans'][plan]) * discount)} {currency_icon}" + (f" ({100-100*discount}% off)" if (100-100*discount != 0) else "")
                                        , callback_data={'plan': plan})] for plan in org['payment_options']['currencies']['rial']['plans']
     ]
     keyboard.extend([[telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data='Cancel')]])
