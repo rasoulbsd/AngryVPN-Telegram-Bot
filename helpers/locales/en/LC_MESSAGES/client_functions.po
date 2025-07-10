@@ -282,3 +282,14 @@ msgstr "GB"
 
 msgid "T"
 msgstr "T"
+msgid "recommended_servers"
+msgstr "⭐ Recommended Servers"
+
+msgid "new"
+msgstr "New"
+
+msgid "your_servers"
+msgstr "📱 Your Servers"
+
+msgid "new_servers"
+msgstr "🔴 New Servers"

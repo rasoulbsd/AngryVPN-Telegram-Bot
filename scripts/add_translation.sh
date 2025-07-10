@@ -5,10 +5,8 @@
 
 set -e
 
-cd "$(dirname "$0")/.."
-
 # List available domains
-DOMAINS=( $(ls helpers/locales/*.pot | xargs -n1 basename | sed 's/\.pot$//') )
+DOMAINS=( $(ls ../helpers/locales/*.pot | xargs -n1 basename | sed 's/\.pot$//') )
 echo "Available domains:"
 for i in "${!DOMAINS[@]}"; do
     echo "$((i+1)). ${DOMAINS[$i]}"
@@ -32,8 +30,8 @@ read -p "Enter the translation key: " key
 read -p "Enter the English value: " en_value
 read -p "Enter the Farsi value: " fa_value
 
-PO_EN="helpers/locales/en/LC_MESSAGES/$domain.po"
-PO_FA="helpers/locales/fa/LC_MESSAGES/$domain.po"
+PO_EN="../helpers/locales/en/LC_MESSAGES/$domain.po"
+PO_FA="../helpers/locales/fa/LC_MESSAGES/$domain.po"
 
 # Add to English .po
 if ! grep -q "msgid \"$key\"" "$PO_EN"; then

@@ -94,8 +94,7 @@ async def menu(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYP
     else:
         reply_text = commands_texts("what_do_you_want")
         keyboard = [
-            [telegram.InlineKeyboardButton(commands_texts("menu_get_new_vmess"), callback_data="Get New Vmess")],
-            [telegram.InlineKeyboardButton(commands_texts("menu_refresh_vmess"), callback_data="Refresh Vmess")],
+            [telegram.InlineKeyboardButton(commands_texts("menu_servers"), callback_data="Get Servers")],
             [telegram.InlineKeyboardButton(commands_texts("menu_recharge"), callback_data="Charge Account")],
             [telegram.InlineKeyboardButton(commands_texts("menu_userinfo"), callback_data="Get User Info")],
             [telegram.InlineKeyboardButton(commands_texts("menu_support"), callback_data="Receive Ticket")],

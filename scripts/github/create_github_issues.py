@@ -4,7 +4,6 @@ Script to create GitHub issues for remaining tasks in the AngryVPN-Telegram-Bot 
 """
 
 import subprocess
-import json
 import sys
 
 # Define the issues to create

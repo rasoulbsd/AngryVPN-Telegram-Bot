@@ -6,8 +6,7 @@ Guides users through creating GitHub issues with all options.
 
 import subprocess
 import json
-import sys
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # Issue templates for common types
 ISSUE_TEMPLATES = {
@@ -159,7 +158,7 @@ def create_issue(title: str, body: str, labels: List[str], assignees: List[str] 
             cmd.extend(["--assignee", ",".join(assignees)])
         
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        print(f"✅ Issue created successfully!")
+        print("✅ Issue created successfully!")
         
         # Extract issue URL from output
         for line in result.stdout.split('\n'):
@@ -286,7 +285,7 @@ def edit_template(template: Dict) -> Dict:
         template['title'] = new_title
     
     # Edit body
-    print(f"\nCurrent body preview:")
+    print("\nCurrent body preview:")
     print("-" * 40)
     print(template['body'][:200] + "..." if len(template['body']) > 200 else template['body'])
     print("-" * 40)

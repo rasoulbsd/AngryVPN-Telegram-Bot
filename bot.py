@@ -3,7 +3,7 @@ from helpers.initial import connect_to_database, get_secrets_config
 from dotenv import load_dotenv
 
 from helpers.commands import start, menu, cancel, admin, cancel_command
-from helpers.client.server import get_vmess_start, deliver_vmess, get_status, deliver_vmess_status, refresh_vmess, deliver_refresh_vmess
+from helpers.client.server import get_unified_servers, deliver_vmess, get_status, deliver_vmess_status
 from helpers.client.user import get_userinfo
 from helpers.client.ticket import receive_ticket, receive_ticket_inputed
 from helpers.client.charge import user_charge_account, user_charge_account_with_plan, user_charge_acc_inputed, user_charge_acc_inputed_image, user_charge_rial_inputed_document
@@ -23,7 +23,7 @@ from helpers.org_admin.charging import admin_charge_account, admin_charge_accoun
 from telegram.ext import PicklePersistence
 from helpers.bot_functions import usage_exceed
 from helpers.states import (
-    DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, DELIVER_REFRESH_VMESS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
+    DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
     RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
     NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
     ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     )
 
     vmess_handler = telext.ConversationHandler(
-        entry_points=[telext.CallbackQueryHandler(get_vmess_start, pattern='^Get New Vmess$')],
+        entry_points=[telext.CallbackQueryHandler(get_unified_servers, pattern='^Get Servers$')],
         states={
             DELIVER_SERVER: [
                 telext.CallbackQueryHandler(deliver_vmess, pattern=lambda z: z in [s['name'] for s in db_client[secrets['DBName']].servers.find(projection={'name': True})]),
@@ -84,18 +84,7 @@ if __name__ == '__main__':
         name="vmess_handler"
     )
 
-    refresh_vmess_handler = telext.ConversationHandler(
-        entry_points=[telext.CallbackQueryHandler(refresh_vmess, pattern='^Refresh Vmess$')],
-        states={
-            DELIVER_REFRESH_VMESS: [
-                telext.CallbackQueryHandler(deliver_refresh_vmess, pattern=lambda z: z in [s['name'] for s in db_client[secrets['DBName']].servers.find(projection={'name': True})]),
-            ]
-        },
-        fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
-        per_message=True,
-        allow_reentry=False,
-        name="refresh_vmess_handler"
-    )
+
 
     userinfo_handler = telext.ConversationHandler(
         entry_points=[telext.CallbackQueryHandler(get_userinfo, pattern='^Get User Info$')],
@@ -300,7 +289,6 @@ if __name__ == '__main__':
     application.add_handler(admin_handler)
 
     application.add_handler(vmess_handler)
-    application.add_handler(refresh_vmess_handler)
     application.add_handler(userinfo_handler)
     application.add_handler(receive_ticket_handler)
     application.add_handler(charge_acc_handler)

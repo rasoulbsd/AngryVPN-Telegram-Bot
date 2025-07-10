@@ -1,31 +1,21 @@
 #!/bin/bash
 
-set -e
+echo "generating pot files"
+./pygettext.py -d commands -o ../helpers/locales/commands.pot --keyword=commands_texts ../helpers/commands.py &&
+./pygettext.py -d org_admin -o ../helpers/locales/org_admin.pot --keyword=org_admin_texts ../helpers/org_admin.py &&
+./pygettext.py -d client_functions -o ../helpers/locales/client_functions.pot --keyword=client_functions_texts ../helpers/client_functions.py &&  
+./pygettext.py -d bot_functions -o ../helpers/locales/bot_functions.pot --keyword=bot_functions_texts ../helpers/bot_functions.py &&
 
-DOMAINS=("commands" "org_admin" "client_functions" "bot_functions")
-LANGS=("en" "fa")
+echo "generating mo files for EN"
+msgfmt ../helpers/locales/en/LC_MESSAGES/commands.po -o ../helpers/locales/en/LC_MESSAGES/commands.mo && 
+msgfmt ../helpers/locales/en/LC_MESSAGES/org_admin.po -o ../helpers/locales/en/LC_MESSAGES/org_admin.mo && 
+msgfmt ../helpers/locales/en/LC_MESSAGES/client_functions.po -o ../helpers/locales/en/LC_MESSAGES/client_functions.mo && 
+msgfmt ../helpers/locales/en/LC_MESSAGES/bot_functions.po -o ../helpers/locales/en/LC_MESSAGES/bot_functions.mo &&
+# msgfmt ../helpers/locales/en/LC_MESSAGES/general.po -o ../helpers/locales/en/LC_MESSAGES/general.mo
 
-echo "Generating pot files"
-for domain in "${DOMAINS[@]}"; do
-    pygettext.py -d $domain -o ./helpers/locales/$domain.pot --keyword=${domain}_texts helpers/$domain.py
-done
-
-echo "Merging pot into po files"
-for domain in "${DOMAINS[@]}"; do
-    for lang in "${LANGS[@]}"; do
-        if [ -f helpers/locales/$lang/LC_MESSAGES/$domain.po ]; then
-            msgmerge --update helpers/locales/$lang/LC_MESSAGES/$domain.po helpers/locales/$domain.pot
-        else
-            msginit --no-translator --input=helpers/locales/$domain.pot --locale=$lang --output-file=helpers/locales/$lang/LC_MESSAGES/$domain.po
-        fi
-    done
-done
-
-echo "Compiling mo files"
-for domain in "${DOMAINS[@]}"; do
-    for lang in "${LANGS[@]}"; do
-        msgfmt helpers/locales/$lang/LC_MESSAGES/$domain.po -o helpers/locales/$lang/LC_MESSAGES/$domain.mo
-    done
-done
-
-echo "Localization update complete."
+echo "generating mo files for FA"
+msgfmt ../helpers/locales/fa/LC_MESSAGES/commands.po -o ../helpers/locales/fa/LC_MESSAGES/commands.mo &&
+msgfmt ../helpers/locales/fa/LC_MESSAGES/org_admin.po -o ../helpers/locales/fa/LC_MESSAGES/org_admin.mo &&
+msgfmt ../helpers/locales/fa/LC_MESSAGES/client_functions.po -o ../helpers/locales/fa/LC_MESSAGES/client_functions.mo &&
+msgfmt ../helpers/locales/fa/LC_MESSAGES/bot_functions.po -o ../helpers/locales/fa/LC_MESSAGES/bot_functions.mo
+# msgfmt ../helpers/locales/fa/LC_MESSAGES/general.po -o ../helpers/locales/fa/LC_MESSAGES/general.mo

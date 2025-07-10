@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-07-29 13:26+0330\n"
+"POT-Creation-Date: 2025-07-09 19:34-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,63 +15,61 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: helpers/commands.py:42 helpers/commands.py:97 helpers/commands.py:133
+#: ../helpers/commands.py:25 ../helpers/commands.py:82
+#: ../helpers/commands.py:117
 msgid "join_channel"
 msgstr ""
 
-#: helpers/commands.py:60
+#: ../helpers/commands.py:45
 msgid "welcome"
 msgstr ""
 
-#: helpers/commands.py:61 helpers/commands.py:66
+#: ../helpers/commands.py:46 ../helpers/commands.py:51
 msgid "unique_id"
 msgstr ""
 
-#: helpers/commands.py:62 helpers/commands.py:67
+#: ../helpers/commands.py:47 ../helpers/commands.py:52
 msgid "pop_menu"
 msgstr ""
 
-#: helpers/commands.py:63 helpers/commands.py:68
+#: ../helpers/commands.py:48 ../helpers/commands.py:53
 msgid "contact_support"
 msgstr ""
 
-#: helpers/commands.py:65
+#: ../helpers/commands.py:50
 msgid "welcome_back"
 msgstr ""
 
-#: helpers/commands.py:88
+#: ../helpers/commands.py:73
 msgid "user_not_found"
 msgstr ""
 
-#: helpers/commands.py:101 helpers/commands.py:110 helpers/commands.py:151
+#: ../helpers/commands.py:86 ../helpers/commands.py:95
+#: ../helpers/commands.py:135
 msgid "what_do_you_want"
 msgstr ""
 
-#: helpers/commands.py:103
+#: ../helpers/commands.py:88
 msgid "menu_purchase_account"
 msgstr ""
 
-#: helpers/commands.py:104 helpers/commands.py:115
+#: ../helpers/commands.py:89 ../helpers/commands.py:99
 msgid "menu_userinfo"
 msgstr ""
 
-#: helpers/commands.py:105 helpers/commands.py:116
+#: ../helpers/commands.py:90 ../helpers/commands.py:100
 msgid "menu_support"
 msgstr ""
 
-#: helpers/commands.py:106 helpers/commands.py:117
+#: ../helpers/commands.py:91 ../helpers/commands.py:101
 msgid "general_cancel"
 msgstr ""
 
-#: helpers/commands.py:112
-msgid "menu_get_new_vmess"
+#: ../helpers/commands.py:97
+msgid "menu_servers"
 msgstr ""
 
-#: helpers/commands.py:113
-msgid "menu_refresh_vmess"
-msgstr ""
-
-#: helpers/commands.py:114
+#: ../helpers/commands.py:98
 msgid "menu_recharge"
 msgstr ""
 

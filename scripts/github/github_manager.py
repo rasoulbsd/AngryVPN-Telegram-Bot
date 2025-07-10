@@ -4,7 +4,6 @@ GitHub Management Tool
 Main script to access all GitHub-related tools.
 """
 
-import os
 import sys
 import subprocess
 from pathlib import Path

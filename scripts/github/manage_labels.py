@@ -5,9 +5,8 @@ Allows users to add, remove, and list GitHub labels interactively.
 """
 
 import subprocess
-import sys
 import json
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # Predefined label configurations
 PREDEFINED_LABELS = {

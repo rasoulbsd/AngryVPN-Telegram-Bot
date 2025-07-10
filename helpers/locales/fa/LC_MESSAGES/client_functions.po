@@ -281,3 +281,14 @@ msgstr "گیگ"
 
 msgid "T"
 msgstr "تومان"
+
+msgid "recommended_servers"
+msgstr "⭐ سرور‌های پیشنهادی"
+
+msgid "new"
+msgstr "جدید"
+msgid "your_servers"
+msgstr "📱 سرور‌های شما"
+
+msgid "new_servers"
+msgstr "🔴 سرور‌های جدید"

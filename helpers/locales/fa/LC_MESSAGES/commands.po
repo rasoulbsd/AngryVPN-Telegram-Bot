@@ -80,5 +80,6 @@ msgstr "گیگ"
 
 msgid "T"
 msgstr "تومان"
-msgid "test_key"
-msgstr "مقدار تست"
+
+msgid "menu_servers"
+msgstr "🖥 سرور‌ها 🖥"

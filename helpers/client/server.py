@@ -9,9 +9,160 @@ import helpers.xuiAPI as xAPI
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
 from helpers.states import DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, DELIVER_REFRESH_VMESS
+import html
+import re
 
 (secrets, Config) = get_secrets_config()
 client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+
+def escape_markdown_v2(text):
+    # Escape all special characters for MarkdownV2
+    return re.sub(r'([_\*\[\]()~`>#+\-=|{}.!])', r'\\\1', str(text))
+
+# --- Unified Server Selection ---
+
+
+async def get_unified_servers(update: telegram.Update,
+                              context: telext.ContextTypes.DEFAULT_TYPE):
+    """
+    Unified server selection that shows both new and existing servers with 
+    visual indicators.
+    - Shows "🔴 NEW" tag for servers user hasn't received yet
+    - Shows "⭐ RECOMMENDED" for recommended servers
+    - Shows existing servers without special tags
+    - Shows "📱 YOUR SERVERS" for servers user already has
+    """
+    try:
+        db_client = connect_to_database(secrets['DBConString'])
+    except Exception:
+        print("Failed to connect to the database!")
+
+    query = update.callback_query
+    await query.answer()
+    if query.data == 'Cancel':
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    if not await check_subscription(update):
+        main_channel = db_client[secrets['DBName']].orgs.find_one(
+            {'name': 'main'})['channel']['link']
+        reply_text = (client_functions_texts('join_channel') +
+                     f"\n\n{main_channel}")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    user_dict = db_client[secrets['DBName']].users.find_one(
+        {'user_id': update.effective_user.id})
+    if user_dict is None:
+        reply_text = client_functions_texts("user_not_found")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    # Get user's existing servers
+    user_servers = user_dict.get("server_names", [])
+    org_names = list(user_dict.get('orgs', {}).keys())
+
+    # Get all available servers for the user
+    server_list = list(db_client[secrets['DBName']].servers.find({
+        '$or': [
+            {
+                'AcceptingNew': True,
+                "$or": [
+                    {'isActive': {"$exists": True, "$eq": True}},
+                    {"isActive": {"$exists": False}}
+                ],
+                "role": {'$in': list(set((user_dict.get('role', []) or []) +
+                                     ['normal']))},
+            },
+            {
+                'AcceptingNew': False,
+                'org': {'$in': org_names},
+                "$or": [
+                    {'isActive': {"$exists": True, "$eq": True}},
+                    {"isActive": {"$exists": False}}
+                ],
+                "role": {'$in': list(set((user_dict.get('role', []) or []) +
+                                     ['normal']))},
+            }
+        ],
+    }))
+
+    if len(server_list) == 0:
+        reply_text = client_functions_texts("no_server_available")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    # Create keyboard with visual indicators
+    keyboard = []
+    reply_text = f"{client_functions_texts('select_server')}\n\n"
+
+    # Group servers by status
+    new_servers = []
+    existing_servers = []
+    recommended_servers = []
+
+    for server in server_list:
+        server_name = server['name']
+        is_new = server_name not in user_servers
+        is_recommended = server.get('isRecommended', False)
+
+        if is_new:
+            if is_recommended:
+                recommended_servers.append(server)
+            else:
+                new_servers.append(server)
+        else:
+            existing_servers.append(server)
+
+    existing_server_names = {server['name'] for server in existing_servers}
+    new_servers = [server for server in new_servers if server['name'] not in existing_server_names]
+
+    # Add recommended servers first (if any)
+    if recommended_servers:
+        reply_text += f"<b>{client_functions_texts('recommended_servers')}</b>\n"
+        for server in recommended_servers:
+            if server.get('isNew', False):
+                display_name = f"🔴 {html.escape(server['name'])} ({html.escape(client_functions_texts('new'))})"
+            else:
+                display_name = f"⭐ {html.escape(server['name'])} ({html.escape(client_functions_texts('recommended'))})"
+            keyboard.append([telegram.InlineKeyboardButton(
+                display_name, callback_data=server['name'])])
+            reply_text += f"- {html.escape(server['name'])}\n"
+        reply_text += "---------------------\n\n"
+
+    # Add new servers
+    if new_servers:
+        reply_text += f"<b>{client_functions_texts('new_servers')}</b>\n"
+        for server in new_servers:
+            display_name = f"🔴 {html.escape(server['name'])} ({html.escape(client_functions_texts('new'))})"
+            keyboard.append([telegram.InlineKeyboardButton(
+                display_name, callback_data=server['name'])])
+            reply_text += f"- {html.escape(server['name'])}\n"
+        reply_text += "---------------------\n\n"
+
+    # Add existing servers
+    if existing_servers:
+        reply_text += f"<b>{client_functions_texts('your_servers')}</b>\n"
+        for server in existing_servers:
+            display_name = f"📱 {html.escape(server['name'])}"
+            keyboard.append([telegram.InlineKeyboardButton(
+                display_name, callback_data=server['name'])])
+            reply_text += f"- {html.escape(server['name'])}\n"
+        reply_text += "---------------------\n\n"
+
+    # Add cancel button
+    keyboard.append([telegram.InlineKeyboardButton(
+        client_functions_texts("general_cancel"), callback_data='Cancel')])
+
+    reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+    await update.effective_message.edit_text(
+        reply_text, reply_markup=reply_markup,
+        parse_mode=telegram.constants.ParseMode.HTML)
+    db_client.close()
+    return DELIVER_SERVER
 
 # --- Get New Server and Vmess ---
 async def get_vmess_start(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
