@@ -1,3 +1,4 @@
+scripts/tests/
 __pycache__/
 venv/
 **/*secrets.*
@@ -16,4 +17,3 @@ docs/
 *.pickle
 .env
 .idea
-scripts/tests/
