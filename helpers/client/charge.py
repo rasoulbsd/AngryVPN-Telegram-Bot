@@ -91,7 +91,7 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
         if context.user_data['currency'] == 'rial':
             reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("send_crypto_transaction_receipt") + ':'
             if "card_number" in org_obj['payment_options']['currencies'][context.user_data['currency']] and org_obj['payment_options']['currencies'][context.user_data['currency']]['card_number'] != "":
-                reply_text += '\n\n' + client_functions_texts("card_number") + f': `{org_obj["payment_options"]["currencies"][context.user_data['currency']]["card_number"]}`'
+                reply_text += '\n\n' + client_functions_texts("card_number") + f': `{org_obj["payment_options"]["currencies"][context.user_data["currency"]]["card_number"]}`'
         else:
             reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("etransfer_instruction") + ":"
         if "email" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['email'] != "":
