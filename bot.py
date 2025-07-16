@@ -2,7 +2,7 @@ import telegram.ext as telext
 from helpers.initial import connect_to_database, get_secrets_config
 from dotenv import load_dotenv
 
-from helpers.commands import start, menu, cancel, admin, cancel_command
+from helpers.commands import start, menu, cancel, admin, cancel_command, change_lang, set_lang_callback
 from helpers.client.server import get_unified_servers, deliver_vmess, get_status, deliver_vmess_status
 from helpers.client.user import get_userinfo
 from helpers.client.ticket import receive_ticket, receive_ticket_inputed
@@ -12,9 +12,10 @@ from helpers.client.purchase import (
     newuser_purchase_interceptor, newuser_purchase_interceptor_inputed, 
     newuser_purchase_rial, newuser_purchase_rial_inputed, newuser_purchase_rial_inputed_image, 
     newuser_purchase_rial_inputed_document,
-    newuser_purchase_receipt_crypto, newuser_purchase_receipt_crypto_inputed, 
-    newuser_purchase_crypto_check_manually
+    newuser_purchase_receipt_crypto, newuser_purchase_receipt_crypto_inputed,
+    newuser_purchase_crypto_check_manually,
 )
+from helpers.client.purchase.cad import newuser_purchase_cad, newuser_purchase_cad_inputed_any
 from helpers.main_admin import manage_orgs
 from helpers.org_admin.members import add_member_to_my_org, add_member_to_my_org_inputed, ban_member, ban_member_inputed
 from helpers.org_admin.servers import manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed
@@ -27,7 +28,8 @@ from helpers.states import (
     RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
     NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
     ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
-    REJECT, ACCEPT, REJECT_CHECK
+    REJECT, ACCEPT, REJECT_CHECK,
+    NEWUSER_PURCHASE_CAD, NEWUSER_PURCHASE_CAD_INPUTED
 )
 
 
@@ -54,6 +56,8 @@ if __name__ == '__main__':
 
     start_handler = telext.CommandHandler('start', start)
     menu_handler = telext.CommandHandler('menu', menu)
+    change_lang_handler = telext.CommandHandler('change_lang', change_lang)
+    set_lang_callback_handler = telext.CallbackQueryHandler(set_lang_callback, pattern='^setlang_')
     cancel_handler = telext.CallbackQueryHandler(cancel, pattern='^Cancel$')
 
 
@@ -148,20 +152,24 @@ if __name__ == '__main__':
                 telext.CallbackQueryHandler(newuser_purchase_interceptor_inputed, pattern=lambda z: z.get('method', '') == 'rial' or z.get('method', '') == 'tron'),
             ],
             NEWUSER_PURCHASE_RIAL: [
-                
                 telext.CallbackQueryHandler(newuser_purchase_rial, pattern=None),
+            ],
+            NEWUSER_PURCHASE_CAD: [
+                telext.CallbackQueryHandler(newuser_purchase_cad, pattern=None),
             ],
             NEWUSER_PURCHASE_RIAL_INPUTED: [
                 telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), newuser_purchase_rial_inputed),
                 telext.MessageHandler(telext.filters.PHOTO, newuser_purchase_rial_inputed_image),
                 telext.MessageHandler(telext.filters.Document.ALL, newuser_purchase_rial_inputed_document),
             ],
+            NEWUSER_PURCHASE_CAD_INPUTED: [
+                telext.MessageHandler(telext.filters.ALL, newuser_purchase_cad_inputed_any),
+            ],
             NEWUSER_PURCHASE_RIAL_ZARIN: [
                 telext.CallbackQueryHandler(pay, pattern='Pay now')
             ],
             PAID: [
-                telext.CallbackQueryHandler(check_payment,pattern='Paid'),
-                
+                telext.CallbackQueryHandler(check_payment,pattern='Paid')
             ],
             NUEWUSER_PURCHASE_RECEIPT_CRYPTO: [
                 telext.CallbackQueryHandler(newuser_purchase_receipt_crypto, pattern=lambda z: z.get('plan', '') in PLANS),
@@ -286,6 +294,8 @@ if __name__ == '__main__':
 
     application.add_handler(start_handler)
     application.add_handler(menu_handler)
+    application.add_handler(change_lang_handler)
+    application.add_handler(set_lang_callback_handler)
     application.add_handler(admin_handler)
 
     application.add_handler(vmess_handler)

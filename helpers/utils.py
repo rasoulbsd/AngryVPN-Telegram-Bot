@@ -74,3 +74,13 @@ async def verfiy_transaction(transaction_id, amount, dest_wallet , user_id, plan
         return (True, None)
     else:
         return (False, None)
+
+
+def get_user_lang(db_client, db_name, user_id, default_lang):
+    user = db_client[db_name].users.find_one({'user_id': user_id})
+    if user:
+        if 'lang' not in user:
+            db_client[db_name].users.update_one({'user_id': user_id}, {'$set': {'lang': default_lang}})
+            return default_lang
+        return user.get('lang', default_lang)
+    return default_lang

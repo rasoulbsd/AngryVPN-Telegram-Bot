@@ -10,7 +10,7 @@ from helpers.states import (
 )
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+# Removed global client_functions_texts
 
 
 async def check_payment(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
@@ -58,6 +58,11 @@ async def newuser_purchase_rial(update: telegram.Update, context: telext.Context
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     await query.answer()

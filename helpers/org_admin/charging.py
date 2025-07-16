@@ -17,7 +17,7 @@ org_admin_texts = set_lang(Config['default_language'], 'org_admin')
 
 
 async def admin_charge_account(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
@@ -395,7 +395,7 @@ def get_user_credentials(effective_message):
 
 
 async def accept_automatic_receipt(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
@@ -405,10 +405,12 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
     org_obj = db_client[secrets['DBName']].orgs.find_one({'name': credentials["org_name"]})
     server_dicts = list(db_client[secrets['DBName']].servers.find({"org": credentials["org_name"]}))
 
-    if credentials['currency'] != "rial":
-        payment_type = "crypto"
-    else:
+    if credentials['currency'] == "rial":
         payment_type = "rial"
+    elif credentials['currency'] == "cad":
+        payment_type = "cad"
+    else:
+        payment_type = "crypto"
 
     tr_verification_data = {
         "user_id": credentials['user_id'],
@@ -447,7 +449,11 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
     db_client[secrets['DBName']].users.update_one({'user_id': credentials["user_id"]}, {"$set": {"wallet": float(user_dict['wallet']) + float(credentials['pay_amount'].split(',')[0])}})
 
     org_channel = db_client[secrets['DBName']].orgs.find_one({'name': credentials["org_name"]})['channel']['link']
-    text = org_admin_texts("verified_payment") + '\n' + org_admin_texts("account_charged_for") + f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + 'تومان' + '!\n'
+    if context.user_data['currency'] == 'cad':
+        currency_text = f' {float(credentials["pay_amount"].split(",")[0])} ' + org_admin_texts('CAD')
+    else:
+        currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts['T']
+    text = org_admin_texts("verified_payment") + '\n' + org_admin_texts("account_charged_for") + currency_text + '!\n'
     text += org_admin_texts("after_added_to_org") + f': \n\n{org_channel}\n\n' + org_admin_texts("thanks_joining") + f' *{secrets["DBName"]}* ' + org_admin_texts("group") + ' 🤍️'
 
     await context.bot.send_message(

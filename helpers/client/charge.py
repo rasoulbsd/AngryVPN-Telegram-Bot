@@ -14,15 +14,24 @@ import secrets as sc
 import requests
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+# Removed global client_functions_texts
 
 # --- Begin moved charge/account functions ---
 
-async def user_charge_account(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+async def user_charge_account(
+    update: telegram.Update,
+    context: telext.ContextTypes.DEFAULT_TYPE
+):
+    """Handle user account charging."""
     try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     await query.answer()
@@ -35,7 +44,7 @@ async def user_charge_account(update: telegram.Update, context: telext.ContextTy
         await update.effective_message.edit_text(reply_text)
         db_client.close()
         return telext.ConversationHandler.END
-    reply_text = client_functions_texts("choose_plan2") + ':\n\n' + client_functions_texts("cancel_to_abort")
+    reply_text = client_functions_texts("choose_plan_simple") + ' :\n\n' + client_functions_texts("cancel_to_abort")
     user_obj = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id}, {"orgs": { "$slice": 1 }})
     org_name = list(user_obj["orgs"].keys())[0]
     org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
@@ -54,12 +63,25 @@ async def user_charge_account(update: telegram.Update, context: telext.ContextTy
         context.user_data['currency'] = 'cad'
         currency_icon = 'CAD'
     keyboard = [
-        [telegram.InlineKeyboardButton(f"{plan}: {round(int(org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][plan]) * discount)} {currency_icon}" + (f" ({100-100*discount}% off)" if (100-100*discount != 0) else "")
-                                    , callback_data={'plan': plan})] for plan in org_obj['payment_options']['currencies'][context.user_data['currency']]['plans']
+        [telegram.InlineKeyboardButton(
+            f"{plan}: {round(int(org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][plan]) * discount)} {currency_icon}" +
+            (f" ({100-100*discount}% off)" if (100-100*discount != 0) else ""),
+            callback_data={"plan": plan}
+        )]
+        for plan in org_obj['payment_options']['currencies'][
+            context.user_data['currency']
+        ]['plans']
     ]
-    keyboard.extend([[telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data='Cancel')]])
+    keyboard.extend([
+        [telegram.InlineKeyboardButton(
+            client_functions_texts("general_cancel"), callback_data='Cancel')]
+    ])
     reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-    await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
+    await update.effective_message.edit_text(
+        reply_text,
+        reply_markup=reply_markup,
+        parse_mode=telegram.constants.ParseMode.MARKDOWN
+    )
     db_client.close()
     return USER_RECHARGE_ACCOUNT_SELECT_PLAN
 
@@ -69,6 +91,11 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     await query.answer()
@@ -149,6 +176,11 @@ async def user_charge_acc_inputed(update: telegram.Update, context: telext.Conte
     except Exception:
         print("Failed to connect to the database!")
 
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
         reply_text = client_functions_texts('join_channel') + f"\n\n{main_channel}"
@@ -161,7 +193,9 @@ async def user_charge_acc_inputed(update: telegram.Update, context: telext.Conte
                 reply_text = client_functions_texts("user_not_found")
                 await update.effective_message.reply_text(reply_text)
             else:
-                user_obj = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id}, {"orgs": { "$slice": 1 }})
+                user_obj = db_client[secrets['DBName']].users.find_one(
+                    {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
+                )
                 org_name = list(user_obj["orgs"].keys())[0]
                 org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
                 keyboard = [
@@ -205,6 +239,11 @@ async def user_charge_acc_inputed_image(update: telegram.Update, context: telext
     except Exception:
         print("Failed to connect to the database!")
 
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
         reply_text = client_functions_texts('join_channel') + f"\n\n{main_channel}"
@@ -217,7 +256,9 @@ async def user_charge_acc_inputed_image(update: telegram.Update, context: telext
                 reply_text = client_functions_texts("user_not_found")
                 await update.effective_message.reply_text(reply_text)
             else:
-                user_obj = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id}, {"orgs": { "$slice": 1 }})
+                user_obj = db_client[secrets['DBName']].users.find_one(
+                    {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
+                )
                 org_name = list(user_obj["orgs"].keys())[0]
                 org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
                 keyboard = [
@@ -259,6 +300,11 @@ async def user_charge_rial_inputed_document(update: telegram.Update, context: te
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one(

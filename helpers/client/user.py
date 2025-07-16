@@ -9,7 +9,7 @@ from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+# Removed global client_functions_texts
 
 
 async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
@@ -18,6 +18,11 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
     except Exception:
         print("Failed to connect to the database!")
         return
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     await query.answer()
@@ -34,9 +39,6 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
         db_client.close()
         return telext.ConversationHandler.END
     else:
-        user_dict = db_client[secrets['DBName']].users.find_one(
-            {'user_id': update.effective_user.id}
-        )
         if user_dict is None:
             reply_text = client_functions_texts("user_not_found")
             await update.effective_message.edit_text(reply_text)

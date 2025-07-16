@@ -13,7 +13,7 @@ import html
 import re
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+# Removed global client_functions_texts
 
 
 def escape_markdown_v2(text):
@@ -23,10 +23,10 @@ def escape_markdown_v2(text):
 # --- Unified Server Selection ---
 
 
-async def check_lang(user_obj):
+async def check_lang(user_obj, db_client):
+    user_lang = user_obj.get('lang', Config['default_language'])
+    client_functions_texts = set_lang(user_lang, 'client_functions')
     if user_obj['lang'] != Config['default_language']:
-        global client_functions_texts
-        client_functions_texts = set_lang(Config['default_language'], 'client_functions')
         return True
     return False
 
@@ -46,6 +46,11 @@ async def get_unified_servers(update: telegram.Update,
     except Exception:
         print("Failed to connect to the database!")
 
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -61,8 +66,6 @@ async def get_unified_servers(update: telegram.Update,
         db_client.close()
         return telext.ConversationHandler.END
 
-    user_dict = db_client[secrets['DBName']].users.find_one(
-        {'user_id': update.effective_user.id})
     if user_dict is None:
         reply_text = client_functions_texts("user_not_found")
         await update.effective_message.edit_text(reply_text)
@@ -180,6 +183,11 @@ async def get_vmess_start(update: telegram.Update, context: telext.ContextTypes.
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     await query.answer()
@@ -328,6 +336,10 @@ async def get_status(update: telegram.Update, context: telext.ContextTypes.DEFAU
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':

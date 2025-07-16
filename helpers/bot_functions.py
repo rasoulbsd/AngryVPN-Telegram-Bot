@@ -9,14 +9,14 @@ DELAY_IN_SECONDS = 60
 ############################# GLOBALS #############################
 
 (secrets, Config) = get_secrets_config()
-
-bot_functions_texts = set_lang(Config['default_language'], 'bot_functions')
+# Removed global bot_functions_texts
 
 ############################# Functions #############################
 def reset(update, context):
     context.user_data.clear()
     context.chat_data.clear()
     return telext.ConversationHandler.END
+# NOTE: For all other usages of bot_functions_texts, use per-user language as shown in other handlers.
 
 async def check_subscription(update: telegram.Update):
     try:
@@ -34,10 +34,11 @@ async def check_subscription(update: telegram.Update):
 
 
 async def check_newuser(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
     org_names = [i['name'] for i in db_client[secrets['DBName']].orgs.find(filter={'active': True}, projection={'name': True})]
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_chat.id})
 
@@ -54,8 +55,9 @@ async def check_newuser(update: telegram.Update, context: telext.ContextTypes.DE
 
         return True
 
+
 def update_all_users():
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")

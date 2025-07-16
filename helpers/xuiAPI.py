@@ -13,6 +13,7 @@ from helpers.initial import get_secrets_config
 
 (secrets, Config) = get_secrets_config()
 
+
 def _login(panel_url, panel_username, panel_password, httpAuth=None):
     with requests.session() as c:
         login_response = c.post(
@@ -108,6 +109,7 @@ def get_remark(server_dict: dict) -> dict:
         print("No matching remark found.")
         return {}
 
+
 def get_client(server_dict, email):
     headers = {
         'Accept': "application/json, text/plain, */*",
@@ -129,6 +131,7 @@ def get_client(server_dict, email):
     if 'obj' not in result:
         return (-1, 'Unhandled Error')
     return (1, result['obj']) #user_uuid, port
+
 
 def get_clients(server_dict, select=None):
     row = get_remark(server_dict)
@@ -202,7 +205,6 @@ def add_client(server_dict, username, traffic, uuid, expires:datetime.datetime=N
         }),
         "disableInsecureEncryption": json.dumps(True)
     }
-
 
     return add_client_request(server_dict, payload)
 
@@ -318,6 +320,7 @@ def restrict_user(server_dicts, user_id):
         }
         update_client_request(server_dict, temp['id'], payload)
 
+
 def get_client_by_email_or_id(server_dict, user_id):
     """
     Retrieves a client dictionary from XUI using the user's formatted email.
@@ -325,9 +328,9 @@ def get_client_by_email_or_id(server_dict, user_id):
     df = get_clients(server_dict)
     if df is None or df.empty:
         return None
-    
+
     email = f"{user_id}-{server_dict['name']}@{server_dict['rowRemark']}"
-    
+
     if email not in df.index:
         return None
 
@@ -336,6 +339,7 @@ def get_client_by_email_or_id(server_dict, user_id):
         'id': row['uuid'],
         'email': email
     }
+
 
 def unrestrict_user(server_dicts, user_id):
     for server_dict in server_dicts:
@@ -384,7 +388,6 @@ def xui_charge_account(server_dict, user_id, charge_amount, new=False):
     # row_settings['clients'] = clients_list
 
     row_id = row.pop('id', None)
-
 
     client['totalGB'] = int(client['totalGB'])
     payload = {
@@ -464,6 +467,7 @@ def change_usage(user_id, server_dict, up, down):
 
 #     return add_client_request(server_dict, payload)
 
+
 def update_client_request(server_dict, client_uuid, payload):
     # Example:
     # {"clients": [{  "id": "ac6cd21ba-766d-403a-bf17-72fdf5b8ab21",  "alterId": 0,  "email": "7jv22s1c",  "totalGB": 208447924224,  "expiryTime": 0,  "enable": false,  "tgId": "",  "subId": ""}]}
@@ -487,6 +491,7 @@ def update_client_request(server_dict, client_uuid, payload):
     if not result['success']:
         return -1, result['msg']
     return (1,) #user_uuid, port
+
 
 def get_online_users(server_dict):
     """Fetch online users from the x-ui panel using the /onlines API endpoint (POST)."""

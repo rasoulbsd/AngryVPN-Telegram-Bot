@@ -7,7 +7,7 @@ from helpers.states import (
 )
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+# Removed global client_functions_texts
 
 
 async def newuser_purchase_cad(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
@@ -16,13 +16,21 @@ async def newuser_purchase_cad(update: telegram.Update, context: telext.ContextT
     except Exception:
         print("Failed to connect to the database!")
 
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
+    if getattr(update, "callback_query", None):
+        print("update.callback_query.data:", update.callback_query.data)
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
         db_client.close()
         return telext.ConversationHandler.END
-    if 'plan' not in context.user_data:
-        context.user_data['plan'] = query.data['plan']
+    plan_name = query.data[len("plan_"):] if query.data.startswith("plan_") else query.data
+    context.user_data['plan'] = plan_name
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': int(update.effective_chat.id)})
     context.user_data['user_dict'] = user_dict
     if ('discount' in user_dict and user_dict['discount']):
@@ -46,7 +54,7 @@ async def newuser_purchase_cad(update: telegram.Update, context: telext.ContextT
     context.user_data['payment_method'] = org_obj['payment_options']['currencies']['cad']['method']
 
     if context.user_data['payment_method'] == 'e-transfer':
-        reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("etransfer_instruction") + ":"
+        reply_text = client_functions_texts("selected_plan") + f': {plan_name} Pack\n' + client_functions_texts("etransfer_instruction") + ":"
         if "email" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['email'] != "":
             reply_text += '\n\n' + client_functions_texts("email") + f': `{org_obj["payment_options"]["currencies"]["cad"]["email"]}`'
         elif "phone_number" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['phone_number'] != "":
@@ -68,6 +76,11 @@ async def newuser_purchase_cad_inputed_any(update: telegram.Update, context: tel
     except Exception:
         print("Failed to connect to the database!")
         return telext.ConversationHandler.END
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']

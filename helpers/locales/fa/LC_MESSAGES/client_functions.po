@@ -269,7 +269,7 @@ msgid "group"
 msgstr "گروه"
 
 #: helpers/client_functions.py:1667
-msgid "choose_plan2"
+msgid "choose_plan_simple"
 msgstr "لطفاً یکی از پلن‌های موجود را انتخاب کنید"
 
 #: helpers/client_functions.py:1726
@@ -297,10 +297,19 @@ msgid "etransfer_instruction"
 msgstr "لطفا مبلغ مورد نظر را برای حساب زیر ای‌ترنسفر کنید سپس در اینجا رسید یا عکسی از تراکنش ارسال کنید."
 
 msgid "email"
-msgstr "ایمل"
+msgstr "ایمیل"
 
 msgid "phone_number"
 msgstr "شماره‌تلفن"
 
 msgid "recommended"
-msgstr "پشینهادی"
+msgstr "پشنهادی"
+
+msgid "choose_plan_cad"
+msgstr "درنظر داشته باشید این مبلغ فقط برای شارژ ولت شما می‌باشد و سیستم به صورت PayAsYouGo می‌باشد.\nهمچنین همیشه امکان برداشت وجه باقی‌مانده وجود دارد. (ممکن است هزینه‌ی تراکنش وجود داشته باشد)\nهزینه‌ی هرسرور بنابر تکنولوژی آن ممکن است متفاوت باشد و همچنین بخاطر یکسری از پارامترها (مانند افزایش محدودیت‌ها از سمت اوپراتورها و یا تغییر تکنولوژی هر سرور) ممکن است تغییر قیمت داشته باشیم."
+
+msgid "lowest_price"
+msgstr "قیمت هر گیگ از: "
+
+msgid "choose_plan_cad_extra"
+msgstr "تمامی خریدها بدون محدودیت تعداد و محدودیت زمانی می‌باشند و براساس قیمت هر گیگ مصرفی، از ولت شما کسر می‌شود."

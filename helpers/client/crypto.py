@@ -12,7 +12,6 @@ from helpers.utils import normalize_transaction_id, validate_transaction, verfiy
 import helpers.xuiAPI as xAPI
 
 (secrets, Config) = get_secrets_config()
-client_functions_texts = set_lang(Config['default_language'], 'client_functions')
 
 # --- Begin moved crypto functions ---
 
@@ -23,6 +22,11 @@ async def newuser_purchase_receipt_crypto(update: telegram.Update, context: tele
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     query = update.callback_query
     # await query.answer()
@@ -82,6 +86,11 @@ async def newuser_purchase_receipt_crypto_inputed(update: telegram.Update, conte
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one(
@@ -170,6 +179,11 @@ async def newuser_purchase_crypto_check_manually(update, context):
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
 
     org_name = context.user_data['org']
     org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})

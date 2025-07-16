@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-07-15 22:14-0700\n"
+"POT-Creation-Date: 2025-07-16 01:04-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,61 +15,62 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: ../helpers/commands.py:25 ../helpers/commands.py:82
-#: ../helpers/commands.py:117
+#: ../helpers/commands.py:31 ../helpers/commands.py:86
+#: ../helpers/commands.py:120
 msgid "join_channel"
 msgstr ""
 
-#: ../helpers/commands.py:45
+#: ../helpers/commands.py:48
 msgid "welcome"
 msgstr ""
 
-#: ../helpers/commands.py:46 ../helpers/commands.py:51
+#: ../helpers/commands.py:49 ../helpers/commands.py:54
 msgid "unique_id"
 msgstr ""
 
-#: ../helpers/commands.py:47 ../helpers/commands.py:52
+#: ../helpers/commands.py:50 ../helpers/commands.py:55
 msgid "pop_menu"
 msgstr ""
 
-#: ../helpers/commands.py:48 ../helpers/commands.py:53
+#: ../helpers/commands.py:51 ../helpers/commands.py:56
 msgid "contact_support"
 msgstr ""
 
-#: ../helpers/commands.py:50
+#: ../helpers/commands.py:53
 msgid "welcome_back"
 msgstr ""
 
-#: ../helpers/commands.py:73
+#: ../helpers/commands.py:79
 msgid "user_not_found"
 msgstr ""
 
-#: ../helpers/commands.py:86 ../helpers/commands.py:95
-#: ../helpers/commands.py:135
+#: ../helpers/commands.py:90 ../helpers/commands.py:100
+#: ../helpers/commands.py:138
 msgid "what_do_you_want"
 msgstr ""
 
-#: ../helpers/commands.py:88
+#: ../helpers/commands.py:92 ../helpers/commands.py:102
 msgid "menu_purchase_account"
 msgstr ""
 
-#: ../helpers/commands.py:89 ../helpers/commands.py:99
+#: ../helpers/commands.py:93 ../helpers/commands.py:103
 msgid "menu_userinfo"
 msgstr ""
 
-#: ../helpers/commands.py:90 ../helpers/commands.py:100
+#: ../helpers/commands.py:94 ../helpers/commands.py:104
 msgid "menu_support"
 msgstr ""
 
-#: ../helpers/commands.py:91 ../helpers/commands.py:101
+#: ../helpers/commands.py:95 ../helpers/commands.py:105
 msgid "general_cancel"
 msgstr ""
 
-#: ../helpers/commands.py:97
-msgid "menu_servers"
+#: ../helpers/commands.py:179
+msgid "choose_language"
 msgstr ""
 
-#: ../helpers/commands.py:98
-msgid "menu_recharge"
+#: ../helpers/commands.py:183 ../helpers/commands.py:193
+#: ../helpers/commands.py:222
+msgid "language_changed"
 msgstr ""
 

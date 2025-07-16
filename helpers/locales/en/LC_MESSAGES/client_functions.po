@@ -270,7 +270,7 @@ msgid "group"
 msgstr "group"
 
 #: helpers/client_functions.py:1667
-msgid "choose_plan2"
+msgid "choose_plan_simple"
 msgstr "Please choose one of these plans"
 
 #: helpers/client_functions.py:1726
@@ -305,3 +305,12 @@ msgstr "Phone Number"
 
 msgid "recommended"
 msgstr "Recommended"
+
+msgid "choose_plan_cad"
+msgstr "Note that it is for charging the wallet only and our payment system is PayAsYouGo.\nThere is always the option for withdrawing your remaining balance. (Fees may be applied)\nAlso note that the price of each server may be different by type and may be changed based in the future (some factors like changes in censorship level or changes behind the technology for each server may affect the price)"
+
+msgid "lowest_price"
+msgstr "Price for each GB from:"
+
+msgid "choose_plan_cad_extra"
+msgstr "All of the payments won't have any time or user limitation and your wallet will be charged based on your usage per GB."

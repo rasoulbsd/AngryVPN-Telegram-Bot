@@ -83,3 +83,9 @@ msgstr "تومان"
 
 msgid "menu_servers"
 msgstr "🖥 سرور‌ها 🖥"
+
+msgid "choose_language"
+msgstr "یکی از زبان‌های زیر را انتخاب کنید"
+
+msgid "language_changed"
+msgstr "زبان ربات با موفقیت تغییر پیدا کرد"

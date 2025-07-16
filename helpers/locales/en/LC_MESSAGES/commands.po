@@ -82,3 +82,9 @@ msgid "T"
 msgstr "T"
 msgid "menu_servers"
 msgstr "🖥 Servers"
+
+msgid "choose_language"
+msgstr "Choose from one of these languages"
+
+msgid "language_changed"
+msgstr "Language has been changed successfully"
