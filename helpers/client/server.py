@@ -149,7 +149,12 @@ async def get_unified_servers(update: telegram.Update,
     if new_servers:
         reply_text += f"<b>{client_functions_texts('new_servers')}</b>\n"
         for server in new_servers:
-            display_name = f"🔴 {html.escape(server['name'])} ({html.escape(client_functions_texts('new'))})"
+            if server.get('isRecommended', False):
+                display_name = "⭐ "
+            else:
+                display_name = "🔴 "
+            display_name += f"{html.escape(server['name'])} ({html.escape(client_functions_texts('new'))})"
+            
             keyboard.append([telegram.InlineKeyboardButton(
                 display_name, callback_data=server['name'])])
             reply_text += f"- {html.escape(server['name'])}\n"
