@@ -47,7 +47,7 @@ async def newuser_purchase(update: telegram.Update, context: telext.ContextTypes
     context.user_data['full_name'] = update.effective_chat.full_name
     context.user_data['username'] = update.effective_chat.username
     context.user_data['user_id'] = update.effective_chat.id
-
+    
     reply_text = client_functions_texts("referal_code") + "\n\n" + client_functions_texts("cancel_to_abort") 
     keyboard = [
         [telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data='Cancel')]
@@ -87,7 +87,7 @@ async def newuser_purchase_select_plan(update: telegram.Update, context: telext.
 
         db_client.close()
         return telext.ConversationHandler.END
-
+    
     context.user_data['org'] = org['name']
 
     if 'rial' in org['payment_options']['currencies']:
@@ -217,4 +217,4 @@ async def newuser_purchase_interceptor_inputed(update: telegram.Update, context:
     if query.data['method'] == 'rial':
         return NEWUSER_PURCHASE_RIAL
     elif query.data['method'] == 'tron':
-        return NUEWUSER_PURCHASE_RECEIPT_CRYPTO
+        return NUEWUSER_PURCHASE_RECEIPT_CRYPTO 

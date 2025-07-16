@@ -98,7 +98,7 @@ async def list_my_org_servers(update: telegram.Update, context: telext.ContextTy
 
 
 async def manage_my_org_server(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
@@ -109,16 +109,20 @@ async def manage_my_org_server(update: telegram.Update, context: telext.ContextT
         db_client.close()
         return telext.ConversationHandler.END
 
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
-        reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
-        await update.effective_message.edit_text(reply_text)
-        return telext.ConversationHandler.END
-    selected_org = query.data['org']
-    selected_server = query.data['server']
+    # Fix: parse org and server from string callback_data
+    if query.data.startswith('ManageServer:'):
+        _, selected_org, selected_server = query.data.split(':', 2)
+    else:
+        selected_org = None
+        selected_server = None
     admin_dict = db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})
     server_dict = db_client[secrets['DBName']].servers.find_one({'name': selected_server})
-    if selected_org not in admin_dict['orgs'] or selected_org != server_dict['org']:
+    # Normalize org names for robust comparison
+    selected_org_norm = selected_org.strip().lower() if selected_org else ''
+    admin_orgs_norm = [org.strip().lower() for org in admin_dict.get('orgs', [])]
+    server_org_norm = server_dict['org'].strip().lower() if server_dict and 'org' in server_dict else ''
+
+    if selected_org_norm not in admin_orgs_norm or selected_org_norm != server_org_norm:
         reply_text = "Unathorized! Also, How are you here?"
         await update.effective_message.edit_text(reply_text)
         db_client.close()
