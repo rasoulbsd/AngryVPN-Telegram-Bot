@@ -301,3 +301,6 @@ msgstr "ایمل"
 
 msgid "phone_number"
 msgstr "شماره‌تلفن"
+
+msgid "recommended"
+msgstr "پشینهادی"

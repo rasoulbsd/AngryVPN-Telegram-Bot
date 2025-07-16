@@ -255,7 +255,10 @@ def delete_client(server_dict, user_uuid):
 
 
 def generate_vmess(server_dict, username, user_uuid):
-    tls = 'tls'
+    if 'isTLS' in server_dict and server_dict['isTLS'] is False:
+        tls = ''
+    else:
+        tls = 'tls'
     sni = ''
     host = ''
     if server_dict.get('SNIPattern', None) is not None:

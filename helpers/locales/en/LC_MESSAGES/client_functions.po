@@ -302,3 +302,6 @@ msgstr "Email"
 
 msgid "phone_number"
 msgstr "Phone Number"
+
+msgid "recommended"
+msgstr "Recommended"

@@ -13,6 +13,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+
 # Initialize gettext
 def set_lang(locale, file):
     localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locales')
@@ -22,9 +23,10 @@ def set_lang(locale, file):
     translation.install()
     return translation.gettext
 
+
 def connect_to_database(db_con_string):
     print("trying to connect to db...")
-    try: 
+    try:
         db_client = pymongo.MongoClient(db_con_string)
         logging.info("Connected to the Database")
         return db_client
@@ -32,6 +34,7 @@ def connect_to_database(db_con_string):
         logging.error("Error Connecting to the Database!")
         logging.error(str(e))
         raise e
+
 
 def get_secrets_config():
     env_variables = {key: os.environ.get(key) for key in os.environ.keys()}

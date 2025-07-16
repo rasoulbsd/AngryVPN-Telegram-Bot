@@ -15,6 +15,7 @@ import re
 (secrets, Config) = get_secrets_config()
 client_functions_texts = set_lang(Config['default_language'], 'client_functions')
 
+
 def escape_markdown_v2(text):
     # Escape all special characters for MarkdownV2
     return re.sub(r'([_\*\[\]()~`>#+\-=|{}.!])', r'\\\1', str(text))
@@ -22,10 +23,18 @@ def escape_markdown_v2(text):
 # --- Unified Server Selection ---
 
 
+async def check_lang(user_obj):
+    if user_obj['lang'] != Config['default_language']:
+        global client_functions_texts
+        client_functions_texts = set_lang(Config['default_language'], 'client_functions')
+        return True
+    return False
+
+
 async def get_unified_servers(update: telegram.Update,
                               context: telext.ContextTypes.DEFAULT_TYPE):
     """
-    Unified server selection that shows both new and existing servers with 
+    Unified server selection that shows both new and existing servers with
     visual indicators.
     - Shows "🔴 NEW" tag for servers user hasn't received yet
     - Shows "⭐ RECOMMENDED" for recommended servers
@@ -90,6 +99,7 @@ async def get_unified_servers(update: telegram.Update,
     }))
 
     if len(server_list) == 0:
+        print("Here")
         reply_text = client_functions_texts("no_server_available")
         await update.effective_message.edit_text(reply_text)
         db_client.close()
@@ -110,10 +120,9 @@ async def get_unified_servers(update: telegram.Update,
         is_recommended = server.get('isRecommended', False)
 
         if is_new:
-            if is_recommended:
-                recommended_servers.append(server)
-            else:
-                new_servers.append(server)
+            new_servers.append(server)
+        elif is_recommended:
+            recommended_servers.append(server)
         else:
             existing_servers.append(server)
 
@@ -163,6 +172,7 @@ async def get_unified_servers(update: telegram.Update,
         parse_mode=telegram.constants.ParseMode.HTML)
     db_client.close()
     return DELIVER_SERVER
+
 
 # --- Get New Server and Vmess ---
 async def get_vmess_start(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
@@ -246,6 +256,7 @@ async def get_vmess_start(update: telegram.Update, context: telext.ContextTypes.
             db_client.close()
             return DELIVER_SERVER
 
+
 async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
@@ -311,6 +322,7 @@ async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DE
     db_client.close()
     return telext.ConversationHandler.END
 
+
 async def get_status(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
@@ -351,6 +363,7 @@ async def get_status(update: telegram.Update, context: telext.ContextTypes.DEFAU
             db_client.close()
             return DELIVER_USER_VMESS_STATUS
 
+
 async def deliver_vmess_status(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
@@ -374,6 +387,7 @@ async def deliver_vmess_status(update: telegram.Update, context: telext.ContextT
     await update.effective_message.edit_text(reply_text, parse_mode=telegram.constants.ParseMode.MARKDOWN)
     db_client.close()
     return telext.ConversationHandler.END
+
 
 async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
@@ -441,6 +455,7 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
             await update.effective_message.edit_text(final_reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
             db_client.close()
             return DELIVER_REFRESH_VMESS
+
 
 async def deliver_refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
