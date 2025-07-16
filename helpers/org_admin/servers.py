@@ -12,7 +12,7 @@ org_admin_texts = set_lang(Config['default_language'], 'org_admin')
 
 
 async def manage_my_org(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")

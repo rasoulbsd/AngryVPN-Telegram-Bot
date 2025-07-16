@@ -16,9 +16,9 @@ from helpers.client.purchase import (
     newuser_purchase_crypto_check_manually,
 )
 from helpers.client.purchase.cad import newuser_purchase_cad, newuser_purchase_cad_inputed_any
-from helpers.main_admin import manage_orgs, bot_settings_callback
+from helpers.main_admin import manage_orgs, bot_settings_callback, bot_settings_callback, toggle_bot_status_callback, change_dev_message_callback, set_dev_message
 from helpers.org_admin.members import add_member_to_my_org, add_member_to_my_org_inputed, ban_member, ban_member_inputed
-from helpers.org_admin.servers import manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed
+from helpers.org_admin.servers import manage_my_org, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed
 from helpers.org_admin.announcements import admin_announcement, admin_announcement_inputed, direct_message_userid_inputed, direct_message_text_inputed, direct_message
 from helpers.org_admin.charging import admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt,accept_manualy_receipt,receipt_rejected,receipt_back
 from telegram.ext import PicklePersistence
@@ -196,10 +196,14 @@ if __name__ == '__main__':
             ADMIN_MENU: [
                 telext.CallbackQueryHandler(manage_orgs, pattern='^Manage Organizations$'),
                 telext.CallbackQueryHandler(bot_settings_callback, pattern='^Bot Settings$'),
-                telext.CallbackQueryHandler(manage_my_org_server, pattern=lambda z: z in [
+                telext.CallbackQueryHandler(manage_my_org, pattern=lambda z: z in [
                     f"Manage: {org['name']}" for org in db_client[secrets['DBName']].orgs.find()
                 ]),
+                telext.CallbackQueryHandler(toggle_bot_status_callback, pattern='^toggle_bot_status$'),
+                telext.CallbackQueryHandler(change_dev_message_callback, pattern='^change_dev_message$'),
+                telext.MessageHandler(telext.filters.TEXT & ~telext.filters.COMMAND, set_dev_message),
             ],
+
             ORG_MNGMNT_SELECT_OPTION: [
                 telext.CallbackQueryHandler(usage_exceed, pattern='^Exceed Users: Hard Coded$'),
             ],

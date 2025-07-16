@@ -194,7 +194,7 @@ async def admin(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TY
             auth_msg += "You are a Main Admin\n"
             keyboard.extend([
                 [telegram.InlineKeyboardButton("Manage Organizations", callback_data="Manage Organizations")],
-                [telegram.InlineKeyboardButton("Bot Settings", callback_data="bot_settings")]
+                [telegram.InlineKeyboardButton("Bot Settings", callback_data="Bot Settings")]
             ])
         admin_dict = db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})
         admins_orgs = admin_dict['orgs'] if admin_dict is not None else []

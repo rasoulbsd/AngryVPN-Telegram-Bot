@@ -44,7 +44,6 @@ async def manage_orgs(update: telegram.Update, context: telext.ContextTypes.DEFA
 
 # --- Bot Settings Menu for Main Admins ---
 async def bot_settings_callback(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    print("here")
     query = update.callback_query
     await query.answer()
     user_id = update.effective_user.id
