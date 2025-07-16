@@ -270,6 +270,13 @@ async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DE
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+    
+    # Define client_functions_texts for localization
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+    
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
