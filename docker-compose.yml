@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: tgbot-img
-    container_name: rahbazkon-tgbot-cnt
+    container_name: angryvpn-tgbot-cnt
     volumes:
       - ./secrets.json:/app/secrets.json
     networks:
