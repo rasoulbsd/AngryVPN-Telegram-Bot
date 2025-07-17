@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     start_handler = telext.CommandHandler('start', start)
     menu_handler = telext.CommandHandler('menu', menu)
-    change_lang_handler = telext.CommandHandler('change_lang', change_lang)
+    change_lang_handler = telext.CommandHandler('language', change_lang)
     set_lang_callback_handler = telext.CallbackQueryHandler(set_lang_callback, pattern='^setlang_')
     cancel_handler = telext.CallbackQueryHandler(cancel, pattern='^Cancel$')
 
