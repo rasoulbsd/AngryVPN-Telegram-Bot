@@ -6,7 +6,7 @@ from helpers.commands import start, menu, cancel, admin, cancel_command, change_
 from helpers.client.server import get_unified_servers, deliver_vmess, get_status, deliver_vmess_status
 from helpers.client.user import get_userinfo
 from helpers.client.ticket import receive_ticket, receive_ticket_inputed
-from helpers.client.charge import user_charge_account, user_charge_account_with_plan, user_charge_acc_inputed, user_charge_acc_inputed_image, user_charge_rial_inputed_document
+from helpers.client.charge import user_charge_account, user_charge_account_with_plan, user_charge_acc_unified
 from helpers.client.purchase import (
     check_payment, payment as pay, newuser_purchase, newuser_purchase_select_plan, 
     newuser_purchase_interceptor, newuser_purchase_interceptor_inputed, 
@@ -20,7 +20,7 @@ from helpers.main_admin import manage_orgs, bot_settings_callback, bot_settings_
 from helpers.org_admin.members import add_member_to_my_org, add_member_to_my_org_inputed, ban_member, ban_member_inputed
 from helpers.org_admin.servers import manage_my_org, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed
 from helpers.org_admin.announcements import admin_announcement, admin_announcement_inputed, direct_message_userid_inputed, direct_message_text_inputed, direct_message
-from helpers.org_admin.charging import admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt,accept_manualy_receipt,receipt_rejected,receipt_back
+from helpers.org_admin.charging import admin_charge_account, admin_charge_account_with_server, admin_charge_account_with_server_and_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_with_server, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt, resubmission, accept_manualy_receipt,receipt_rejected,receipt_back
 from telegram.ext import PicklePersistence
 from helpers.bot_functions import usage_exceed
 from helpers.states import (
@@ -28,7 +28,7 @@ from helpers.states import (
     RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
     NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
     ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
-    REJECT, ACCEPT, REJECT_CHECK,
+    REJECT, ACCEPT, REJECT_CHECK, RESUBMMIT,
     NEWUSER_PURCHASE_CAD, NEWUSER_PURCHASE_CAD_INPUTED
 )
 
@@ -59,7 +59,6 @@ if __name__ == '__main__':
     change_lang_handler = telext.CommandHandler('change_lang', change_lang)
     set_lang_callback_handler = telext.CallbackQueryHandler(set_lang_callback, pattern='^setlang_')
     cancel_handler = telext.CallbackQueryHandler(cancel, pattern='^Cancel$')
-
 
     ### Main Menu Handlers ###
     status_handler = telext.ConversationHandler(
@@ -121,15 +120,13 @@ if __name__ == '__main__':
                 telext.CallbackQueryHandler(user_charge_account_with_plan, pattern=lambda z: z.get('plan', '') in PLANS),
             ],
             USER_RECHARGE_ACCOUNT: [
-                telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), user_charge_acc_inputed),
-                telext.MessageHandler(telext.filters.PHOTO, user_charge_acc_inputed_image),
-                telext.MessageHandler(telext.filters.Document.ALL, user_charge_rial_inputed_document),
+                telext.MessageHandler(telext.filters.ALL, user_charge_acc_unified),
             ],
             USER_RECHARGE_ACCOUNT_RIAL_ZARIN: [
                 telext.CallbackQueryHandler(pay, pattern='Pay now')
             ],
             USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID: [
-                telext.CallbackQueryHandler(check_payment,pattern='Paid'),
+                telext.CallbackQueryHandler(check_payment, pattern='Paid'),
                 
             ],
         },
@@ -169,7 +166,7 @@ if __name__ == '__main__':
                 telext.CallbackQueryHandler(pay, pattern='Pay now')
             ],
             PAID: [
-                telext.CallbackQueryHandler(check_payment,pattern='Paid')
+                telext.CallbackQueryHandler(check_payment, pattern='Paid')
             ],
             NUEWUSER_PURCHASE_RECEIPT_CRYPTO: [
                 telext.CallbackQueryHandler(newuser_purchase_receipt_crypto, pattern=lambda z: z.get('plan', '') in PLANS),
@@ -266,33 +263,31 @@ if __name__ == '__main__':
         name="admin_handler"
     )
 
-    receipt_checking_handler=telext.ConversationHandler(
+    receipt_checking_handler = telext.ConversationHandler(
         entry_points=[
-            telext.CallbackQueryHandler(accept_receipt,pattern='^Accept$'),
-            telext.CallbackQueryHandler(reject_receipt,pattern='^Reject$')
+            telext.CallbackQueryHandler(accept_receipt, pattern='^Accept$'),
+            telext.CallbackQueryHandler(reject_receipt, pattern='^Reject$')
         ],
         states={
-            REJECT:[
-
-
+            # REJECT:[
+            # ],
+            ACCEPT: [
+                telext.CallbackQueryHandler(accept_manualy_receipt, pattern='^Manualy$'),
+                telext.CallbackQueryHandler(accept_automatic_receipt, pattern='^Automatic$'),
             ],
-            ACCEPT:[
-                telext.CallbackQueryHandler(accept_manualy_receipt,pattern='^Manualy$'),
-                telext.CallbackQueryHandler(accept_automatic_receipt,pattern='^Automatic$'),
+            REJECT_CHECK: [
+                telext.CallbackQueryHandler(receipt_rejected, pattern='^Reject_sure$'),
+                telext.CallbackQueryHandler(receipt_back, pattern='^Back$'),
             ],
-            REJECT_CHECK:[
-                telext.CallbackQueryHandler(receipt_rejected,pattern='^Reject_sure$'),
-                telext.CallbackQueryHandler(receipt_back,pattern='^Back$'),
+            RESUBMMIT: [
+                telext.CallbackQueryHandler(resubmission, pattern='^Resubmit$'),
             ]
-
         },
         fallbacks=[
-            
         ],
         persistent=True,
         allow_reentry=True,
         name="receipt_checking_handler"
-           
     )
 
     # Add ConversationHandler to application that will be used for handling updates

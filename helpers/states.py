@@ -57,6 +57,6 @@ DELIVER_USER_VMESS_STATUS = range(1)
 DELIVER_REFRESH_VMESS = range(1)
 
 # Receipt checking states
-REJECT, ACCEPT, REJECT_CHECK = range(3)
+REJECT, ACCEPT, REJECT_CHECK, RESUBMMIT = range(4)
 
 # Add any additional states here as needed

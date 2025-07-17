@@ -169,223 +169,118 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
         db_client.close()
         return NEWUSER_PURCHASE_RIAL_ZARIN
 
-async def user_charge_acc_inputed(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    print("in user_charge_acc_inputed")
+
+async def user_charge_acc_unified(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+    print("in user_charge_acc_unified")
     try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+        return
 
     user_id = update.effective_user.id
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
 
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
-        reply_text = client_functions_texts('join_channel') + f"\n\n{main_channel}"
-        await update.effective_message.reply_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    else:
-            user_dict = db_client[secrets['DBName']].users.find_one({'user_id': int(update.effective_chat.id)})
-            if user_dict is None:
-                reply_text = client_functions_texts("user_not_found")
-                await update.effective_message.reply_text(reply_text)
-            else:
-                user_obj = db_client[secrets['DBName']].users.find_one(
-                    {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
-                )
-                org_name = list(user_obj["orgs"].keys())[0]
-                org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
-                keyboard = [
-                        [telegram.InlineKeyboardButton('❌ Reject', callback_data='Reject'),telegram.InlineKeyboardButton('✅ Accept', callback_data='Accept')]
-                    ]
-                context.user_data["payment_receipt"] = update.effective_message.text
-                reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-                context.user_data['payment_receipt'] = f"\n{update.effective_message.text}"
-                context.user_data['full_name'] = update.effective_chat.full_name
-                context.user_data['username'] = update.effective_chat.username
-                context.user_data['user_id'] = update.effective_chat.id
-                context.user_data['org'] = org_name
-                context.user_data['pay_amount'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][context.user_data['plan']]
-                await context.bot.send_message(
-                    chat_id=org_obj['ticketing_group_id'],
-                    text=
-                        "Recharg\n"+
-                        f"payment_method:{context.user_data['payment_method']}\n" +
-                        (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") +
-                        f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" +
-                        f"Plan:{context.user_data['plan']}\n" +
-                        f"org:{context.user_data['org']}\n"+
-                        f"pay_amount:{context.user_data['pay_amount']}, included {100-100*context.user_data['discount']}% discount\n" +
-                        f"currency:{context.user_data['currency']}\n"+
-                        "-------------------------\n" +
-                        context.user_data['payment_receipt'],
-                    reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
-                    reply_markup=reply_markup
-                    )
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=client_functions_texts("thanks_for_payment")
-                    )
-            db_client.close()
-            return telext.ConversationHandler.END
-
-async def user_charge_acc_inputed_image(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    print("in user_charge_acc_inputed")
-    try:
-        db_client = connect_to_database(secrets['DBConString'])
-    except Exception:
-        print("Failed to connect to the database!")
-
-    user_id = update.effective_user.id
-    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
-    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
-    client_functions_texts = set_lang(user_lang, 'client_functions')
-
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
-        reply_text = client_functions_texts('join_channel') + f"\n\n{main_channel}"
-        await update.effective_message.reply_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    else:
-            user_dict = db_client[secrets['DBName']].users.find_one({'user_id': int(update.effective_chat.id)})
-            if user_dict is None:
-                reply_text = client_functions_texts("user_not_found")
-                await update.effective_message.reply_text(reply_text)
-            else:
-                user_obj = db_client[secrets['DBName']].users.find_one(
-                    {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
-                )
-                org_name = list(user_obj["orgs"].keys())[0]
-                org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
-                keyboard = [
-                        [telegram.InlineKeyboardButton('❌ Reject', callback_data='Reject'),telegram.InlineKeyboardButton('✅ Accept', callback_data='Accept')]
-                    ]
-                context.user_data["payment_receipt"] = update.effective_message.text
-                reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-                context.user_data['payment_receipt'] = f"\n{update.effective_message.text}"
-                context.user_data['full_name'] = update.effective_chat.full_name
-                context.user_data['username'] = update.effective_chat.username
-                context.user_data['user_id'] = update.effective_chat.id
-                context.user_data['org']=org_name
-                context.user_data['pay_amount'] = org_obj['payment_options']['currencies']['rial']['plans'][context.user_data['plan']]
-                await context.bot.send_photo(
-                    chat_id=org_obj['ticketing_group_id'],
-                    photo=update.message.photo[0].file_id,
-                    caption=
-                        "Recharg\n"+
-                        f"payment_method:{context.user_data['payment_method']}\n" +
-                        (f"username:@{context.user_data['username']}\n" if(context.user_data['username'] is not None) else "") +
-                        f"user_id:{context.user_data['user_id']}\nfull_name:{context.user_data['full_name']}\n" +
-                        f"Plan:{context.user_data['plan']}\n" +
-                        f"org:{context.user_data['org']}\n"+
-                        f"pay_amount:{context.user_data['pay_amount']}, included {100-100*context.user_data['discount']}% discount\n"
-                        f"currency:rial\n",
-                    reply_to_message_id= secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
-                    reply_markup=reply_markup
-                )
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=client_functions_texts("thanks_for_payment")
-                    )
-            db_client.close()
-            return telext.ConversationHandler.END
-
-async def user_charge_rial_inputed_document(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    print("in user_charge_rial_inputed_document")
-    try:
-        db_client = connect_to_database(secrets['DBConString'])
-    except Exception:
-        print("Failed to connect to the database!")
-
-    user_id = update.effective_user.id
-    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
-    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
-    client_functions_texts = set_lang(user_lang, 'client_functions')
-
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one(
-            {'name': 'main'}
-        )['channel']['link']
-        reply_text = client_functions_texts('join_channel') + f"\n\n{main_channel}"
-        await update.effective_message.reply_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    else:
-        user_dict = db_client[secrets['DBName']].users.find_one(
-            {'user_id': int(update.effective_chat.id)}
+    # Defensive check for required context
+    if 'currency' not in context.user_data or 'plan' not in context.user_data:
+        await update.effective_message.reply_text(
+            "Payment flow error: missing currency or plan. Please start again."
         )
-        if user_dict is None:
-            reply_text = client_functions_texts("user_not_found")
-            await update.effective_message.reply_text(reply_text)
-        else:
-            user_obj = db_client[secrets['DBName']].users.find_one(
-                {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
-            )
-            org_name = list(user_obj["orgs"].keys())[0]
-            org_obj = db_client[secrets['DBName']].orgs.find_one(
-                {'name': org_name}
-            )
-            keyboard = [
-                [
-                    telegram.InlineKeyboardButton('❌ Reject', callback_data='Reject'),
-                    telegram.InlineKeyboardButton('✅ Accept', callback_data='Accept')
-                ]
-            ]
-            context.user_data["payment_receipt"] = update.effective_message.text
-            reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-            context.user_data['payment_receipt'] = f"\n{update.effective_message.text}"
-            context.user_data['full_name'] = update.effective_chat.full_name
-            context.user_data['username'] = update.effective_chat.username
-            context.user_data['user_id'] = update.effective_chat.id
-            context.user_data['org'] = org_name
-            context.user_data['pay_amount'] = (
-                org_obj['payment_options']['currencies']['rial']['plans'][
-                    context.user_data['plan']
-                ]
-            )
-            white_listed = [
-                432080595, 97994343, 60256430, 92294065, 94307276,
-                734823458, 128188905, 1403568736
-            ]
-            white_message = (
-                "\n⚠️⚠️⚠️⚠️ WHITE LISTED ID⚠️⚠️⚠️⚠️"
-                if context.user_data['user_id'] in white_listed else ""
-            )
-            await context.bot.send_document(
-                chat_id=org_obj['ticketing_group_id'],
-                document=update.message.document.file_id,
-                caption=(
-                    f"Recharg\n"
-                    f"payment_method:{context.user_data['payment_method']}\n"
-                    + (
-                        f"username:@{context.user_data['username']}\n"
-                        if context.user_data['username'] is not None else ""
-                    )
-                    + f"user_id:{context.user_data['user_id']}\n"
-                    + f"full_name:{context.user_data['full_name']}\n"
-                    + f"Plan:{context.user_data['plan']}\n"
-                    + f"org:{context.user_data['org']}\n"
-                    + (
-                        f"pay_amount:{context.user_data['pay_amount']}, included "
-                        f"{100-100*context.user_data['discount']}% discount\n"
-                    )
-                    + "currency:rial\n"
-                    + f"{white_message}"
-                ),
-                reply_to_message_id=(
-                    secrets['test_topic_id']
-                    if secrets["DBName"].lower() == "rhvp-test"
-                    else secrets['payments_topic_id']
-                ),
-                reply_markup=reply_markup
-            )
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=client_functions_texts("thanks_for_payment")
-            )
         db_client.close()
         return telext.ConversationHandler.END
+
+    # Get org info
+    user_obj = db_client[secrets['DBName']].users.find_one(
+        {'user_id': update.effective_user.id}, {"orgs": {"$slice": 1}}
+    )
+    org_name = list(user_obj["orgs"].keys())[0]
+    org_obj = db_client[secrets['DBName']].orgs.find_one({'name': org_name})
+
+    # Common context
+    context.user_data['full_name'] = update.effective_chat.full_name
+    context.user_data['username'] = update.effective_chat.username
+    context.user_data['user_id'] = update.effective_chat.id
+    context.user_data['org'] = org_name
+    context.user_data['pay_amount'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['plans'][context.user_data['plan']]
+
+    # Build keyboard
+    keyboard = [
+        [
+            telegram.InlineKeyboardButton('❌ Reject', callback_data='Reject'),
+            telegram.InlineKeyboardButton('✅ Accept', callback_data='Accept')
+        ]
+    ]
+    reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+
+    # Handle input type
+    if update.message.text:
+        context.user_data["payment_receipt"] = f"{update.effective_message.text}"
+        await context.bot.send_message(
+            chat_id=org_obj['ticketing_group_id'],
+            text=(
+                "Recharg\n"
+                f"payment_method:{context.user_data.get('payment_method', '')}\n"
+                + (f"username:@{context.user_data['username']}\n" if context.user_data['username'] else "")
+                + f"user_id:{context.user_data['user_id']}\n"
+                + f"full_name:{context.user_data['full_name']}\n"
+                + f"Plan:{context.user_data['plan']}\n"
+                + f"org:{context.user_data['org']}\n"
+                + f"pay_amount:{context.user_data['pay_amount']}, included {100-context.user_data.get('discount',1)*100}% discount\n"
+                + f"currency:{context.user_data['currency']}\n"
+                "-------------------------\n"
+                + context.user_data["payment_receipt"]
+            ),
+            reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
+            reply_markup=reply_markup
+        )
+    elif update.message.photo:
+        context.user_data["payment_receipt"] = "Photo payment receipt"
+        await context.bot.send_photo(
+            chat_id=org_obj['ticketing_group_id'],
+            photo=update.message.photo[0].file_id,
+            caption=(
+                "Recharg\n"
+                f"payment_method:{context.user_data.get('payment_method', '')}\n"
+                + (f"username:@{context.user_data['username']}\n" if context.user_data['username'] else "")
+                + f"user_id:{context.user_data['user_id']}\n"
+                + f"full_name:{context.user_data['full_name']}\n"
+                + f"Plan:{context.user_data['plan']}\n"
+                + f"org:{context.user_data['org']}\n"
+                + f"pay_amount:{context.user_data['pay_amount']}, included {100-context.user_data.get('discount',1)*100}% discount\n"
+                + f"currency:{context.user_data['currency']}\n"
+            ),
+            reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
+            reply_markup=reply_markup
+        )
+    elif update.message.document:
+        context.user_data["payment_receipt"] = "Document payment receipt"
+        await context.bot.send_document(
+            chat_id=org_obj['ticketing_group_id'],
+            document=update.message.document.file_id,
+            caption=(
+                "Recharg\n"
+                f"payment_method:{context.user_data.get('payment_method', '')}\n"
+                + (f"username:@{context.user_data['username']}\n" if context.user_data['username'] else "")
+                + f"user_id:{context.user_data['user_id']}\n"
+                + f"full_name:{context.user_data['full_name']}\n"
+                + f"Plan:{context.user_data['plan']}\n"
+                + f"org:{context.user_data['org']}\n"
+                + f"pay_amount:{context.user_data['pay_amount']}, included {100-context.user_data.get('discount',1)*100}% discount\n"
+                + f"currency:{context.user_data['currency']}\n"
+            ),
+            reply_to_message_id=secrets['test_topic_id'] if secrets["DBName"].lower() == "rhvp-test" else secrets['payments_topic_id'],
+            reply_markup=reply_markup
+        )
+    else:
+        await update.effective_message.reply_text("Unsupported payment input. Please send text, photo, or document.")
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=client_functions_texts("thanks_for_payment")
+    )
+    db_client.close()
+    return telext.ConversationHandler.END
