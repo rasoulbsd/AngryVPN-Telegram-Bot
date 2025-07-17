@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-07-16 01:04-0700\n"
+"POT-Creation-Date: 2025-07-17 16:49-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,35 +15,35 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: ../helpers/bot_functions.py:97
+#: ../helpers/bot_functions.py:99
 msgid "exceed_usage"
 msgstr ""
 
-#: ../helpers/bot_functions.py:97
+#: ../helpers/bot_functions.py:99
 msgid "after_exceed_usage"
 msgstr ""
 
-#: ../helpers/bot_functions.py:180
+#: ../helpers/bot_functions.py:182
 msgid "verified_payment"
 msgstr ""
 
-#: ../helpers/bot_functions.py:182
+#: ../helpers/bot_functions.py:184
 msgid "account_charged_for"
 msgstr ""
 
-#: ../helpers/bot_functions.py:183
+#: ../helpers/bot_functions.py:185
 msgid "GB"
 msgstr ""
 
-#: ../helpers/bot_functions.py:184
+#: ../helpers/bot_functions.py:186
 msgid "after_added_to_org"
 msgstr ""
 
-#: ../helpers/bot_functions.py:186
+#: ../helpers/bot_functions.py:188
 msgid "thanks_joining"
 msgstr ""
 
-#: ../helpers/bot_functions.py:188
+#: ../helpers/bot_functions.py:190
 msgid "group"
 msgstr ""
 

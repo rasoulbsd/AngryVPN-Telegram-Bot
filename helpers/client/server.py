@@ -413,6 +413,12 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -457,7 +463,7 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
             ]
             reply_markup = telegram.InlineKeyboardMarkup(keyboard)
             for s in server_list:
-                if(s['rowRemark'] not in servers_rowRemarks):
+                if s['rowRemark'] not in servers_rowRemarks:
                     servers_rowRemarks[s['rowRemark']] = {}
                     servers_rowRemarks[s['rowRemark']]['servers'] = []
                     servers_rowRemarks[s['rowRemark']]['traffic'] = s['traffic']
@@ -465,7 +471,7 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
             max_dash = 0
             for row in servers_rowRemarks:
                 for server in servers_rowRemarks[row]['servers']:
-                    temp = f'*{server["name"]}*: ' + f'{server["price"]} ' + 'هزار تومان بر گیگ ' + '\n'
+                    temp = f'*{server["name"]}*: ' + f'{server["price"]} ' + client_funcclient_functions_texts('price_per_gb_rial') + ' \n'
                     reply_text += temp
                     if len(temp) > max_dash:
                         max_dash = len(temp)

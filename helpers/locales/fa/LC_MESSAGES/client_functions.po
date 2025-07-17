@@ -313,3 +313,18 @@ msgstr "قیمت هر گیگ از: "
 
 msgid "choose_plan_cad_extra"
 msgstr "تمامی خریدها بدون محدودیت تعداد و محدودیت زمانی می‌باشند و براساس قیمت هر گیگ مصرفی، از ولت شما کسر می‌شود."
+
+msgid "price_per_gb_rial"
+msgstr "هزار تومان بر گیگ"
+
+msgid "price_per_gb_cad"
+msgstr "دلار به ازای هر گیگ"
+
+msgid "wallet_balance"
+msgstr "مانده کیف پول"
+
+msgid "price_rial"
+msgstr "هزار تومان"
+
+msgid "price_cad"
+msgstr "دلار کانادا"

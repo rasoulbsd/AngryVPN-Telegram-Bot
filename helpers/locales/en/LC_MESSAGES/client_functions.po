@@ -314,3 +314,18 @@ msgstr "Price for each GB from:"
 
 msgid "choose_plan_cad_extra"
 msgstr "All of the payments won't have any time or user limitation and your wallet will be charged based on your usage per GB."
+
+msgid "price_per_gb_rial"
+msgstr "HezarToman/GB"
+
+msgid "price_per_gb_cad"
+msgstr "CAD/GB"
+
+msgid "wallet_balance"
+msgstr "Wallet Balance"
+
+msgid "price_rial"
+msgstr "HezarToman"
+
+msgid "price_cad"
+msgstr "CAD"

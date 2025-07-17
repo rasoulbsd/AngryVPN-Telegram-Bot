@@ -80,6 +80,7 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
                         ]
                     }
                 )
+                print(server_dict)
                 if server_dict is None:
                     continue
 
@@ -116,16 +117,16 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
                     temp = (
                         f'*{server["name"]}*: ' +
                         f'{server["price"]} ' +
-                        'هزار تومان بر گیگ ' + '\n'
+                        client_functions_texts('price_per_gb_rial') + ' \n'
                     )
                     reply_text += temp
                     if len(temp) > max_dash:
                         max_dash = len(temp)
             reply_text += (
                 f'{"-"*max_dash}\n' +
-                'مانده کیف پول' +
+                client_functions_texts('wallet_balance') +
                 ":\t" + f'{int(user_dict["wallet"])} ' +
-                'هزار تومان'
+                client_functions_texts('price_rial')
             )
 
             await update.effective_message.edit_text(
