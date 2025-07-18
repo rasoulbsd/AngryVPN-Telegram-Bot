@@ -137,8 +137,11 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
         return telext.ConversationHandler.END
     else:
         user_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
-
         user_user_dict['wallet'] += float(charge_amount)
+        db_client[secrets['DBName']].users.update_one(
+            {'user_id': user_id},
+            {'$set': {'wallet': user_user_dict['wallet']}}
+        )
 
         tr_verification_data = {
             "user_id": user_id,
@@ -301,6 +304,10 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
             count += 1
             charge_amount = int(update.effective_message.text)
             user_obj['wallet'] += float(charge_amount)
+            db_client[secrets['DBName']].users.update_one(
+                {'user_id': user_obj['user_id']},
+                {'$set': {'wallet': user_obj['wallet']}}
+            )
 
             tr_verification_data = {
                 "user_id": user_obj['user_id'],
