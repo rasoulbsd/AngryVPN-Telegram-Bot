@@ -121,16 +121,27 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
 
             max_dash = 0
             reply_text += "\n\n"
+            all_servers = []
+            server_entries = []
             for row in servers_rowRemarks:
                 for server in servers_rowRemarks[row]['servers']:
+                    if server in all_servers:
+                        continue
+                    all_servers.append(server)
                     temp = (
-                        f'*{server["name"]}*: ' +
-                        f'{server["price"]} ' +
-                        client_functions_texts('price_per_gb_rial' if currency == 'rial' else 'price_per_gb_cad') + ' \n'
+                        f'*{server["name"]}*\n' +
+                        f'{server["price"]} ' + client_functions_texts('price_per_gb_rial' if currency == 'rial' else 'price_per_gb_cad') + ' \n' +
+                        '------------------\n'
                     )
-                    reply_text += temp
+                    server_entries.append(temp)
                     if len(temp) > max_dash:
                         max_dash = len(temp)
+            # Remove the trailing '------------------\n' from the last entry
+            if server_entries:
+                # Remove the last separator from the last entry
+                if server_entries[-1].endswith('------------------\n'):
+                    server_entries[-1] = server_entries[-1].replace('------------------\n', '\n')
+            reply_text += ''.join(server_entries)
             reply_text += (
                 f'{"-"*max_dash}\n' +
                 client_functions_texts('wallet_balance') +
