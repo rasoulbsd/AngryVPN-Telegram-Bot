@@ -137,6 +137,7 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
         return telext.ConversationHandler.END
     else:
         user_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+        prev_wallet = user_user_dict['wallet']
         user_user_dict['wallet'] += float(charge_amount)
         db_client[secrets['DBName']].users.update_one(
             {'user_id': user_id},
@@ -152,8 +153,8 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
             "amount": charge_amount,
             "payment_receipt": f"Manual by admin: {update.effective_chat.id}",
             "admin": update.effective_chat.id,
-            "prev_wallet": user_user_dict['wallet'],
-            "new_wallet": user_user_dict['wallet'] + float(charge_amount),
+            "prev_wallet": prev_wallet,
+            "new_wallet": user_user_dict['wallet'],
             "date": datetime.datetime.now().isoformat(),
             "verified": True,
             "failed": False
@@ -164,7 +165,7 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
         user_org_admin_texts = set_lang(user_user_dict.get('lang', Config['default_language']), 'org_admin')
         try:
             await context.bot.send_message(
-                chat_id=user_dict['user_id'],
+                chat_id=user_user_dict['user_id'],
                 text=user_org_admin_texts("account_charged_for") +
                     f' {charge_amount} ' + user_org_admin_texts(currency_symbol) +
                     '!\n\n' + user_org_admin_texts("new_limit") +
@@ -303,6 +304,7 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
         for user_obj in user_ids:
             count += 1
             charge_amount = int(update.effective_message.text)
+            prev_wallet = user_obj['wallet']
             user_obj['wallet'] += float(charge_amount)
             db_client[secrets['DBName']].users.update_one(
                 {'user_id': user_obj['user_id']},
@@ -318,8 +320,8 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
                 "amount": charge_amount,
                 "payment_receipt": f"Charge All by admin: {update.effective_chat.id}",
                 "admin": update.effective_chat.id,
-                "prev_wallet": user_obj['wallet'],
-                "new_wallet": user_obj['wallet'] + float(charge_amount),
+                "prev_wallet": prev_wallet,
+                "new_wallet": user_obj['wallet'],
                 "date": datetime.datetime.now().isoformat(),
                 "verified": True,
                 "failed": False
