@@ -5,12 +5,11 @@ from scripts.check85 import send_warning_message
 import asyncio
 import datetime
 
-
 async def update_wallets():
     (secrets, Config) = get_secrets_config()
     try:
         db_client = connect_to_database(secrets['DBConString'])
-    except Exception:
+    except Exception as e:
         print("Failed to connect to the database!")
         return
     server_dict = list(db_client[secrets['DBName']].servers.find({
@@ -22,17 +21,10 @@ async def update_wallets():
     mean_server_price = 0
     number_server = 0
     for i in server_dict:
-        try:
-            price = float(i.get('price', 0))
-            mean_server_price += price
-            number_server += 1
-        except (ValueError, TypeError):
-            print(f"Warning: Invalid price for server {i.get('name', 'unknown')}: {i.get('price', 'missing')}")
-            continue
-    if number_server > 0:
-        mean_server_price /= number_server
-    else:
-        mean_server_price = 0
+        mean_server_price += i['price']
+        # mean_server_price = mean_server_price + i['price']
+        number_server += 1
+    mean_server_price /= number_server
     xui_server = {}
     user_dicts = list(db_client[secrets['DBName']].users.find())
     number_of_updates = 0
@@ -42,7 +34,7 @@ async def update_wallets():
         for server_name in user_dict["server_names"]:
             server_tmp = db_client[secrets['DBName']].servers.find_one({'name': server_name})
             if server_tmp:
-                if server_tmp['rowRemark'] not in xui_server:
+                if not server_tmp['rowRemark'] in xui_server:
                     xui_server[server_tmp['rowRemark']] = xAPI.get_clients(server_tmp)
                 xui_data = xui_server[server_tmp['rowRemark']][xui_server[server_tmp['rowRemark']].index == f'{user_dict["user_id"]}-{server_name}@{server_tmp["rowRemark"]}']
                 for index, row in xui_data.iterrows():
@@ -66,18 +58,11 @@ async def update_wallets():
 
                         usage = (row['up'] + row['down'] - prev_usage) / (1024*1024*1024)
                         discount = 0
-                        if 'server_discount' in updated_user_dict:
+                        if  'server_discount' in updated_user_dict:
                             if server['name'] in updated_user_dict['server_discount']:
                                 discount = updated_user_dict['server_discount'][server['name']]
-
-                        try:
-                            server_price = float(server.get('price', 0))
-                            cost = usage * server_price * (100 - discount) / 100
-                        except (ValueError, TypeError):
-                            print(f"Warning: Invalid price for server {server.get('name', 'unknown')}: {server.get('price', 'missing')}")
-                            cost = 0
-
-                        if 'wallet' in updated_user_dict:
+                        cost = usage * server['price'] * (100 - discount) / 100
+                        if  'wallet' in updated_user_dict:
                             updated_user_dict['wallet'] = updated_user_dict['wallet'] - cost
                         else:
                             updated_user_dict['wallet'] = - cost
@@ -119,5 +104,11 @@ async def update_wallets():
                 continue
         number_of_updates += 1
     print(f"{number_of_updates} users updated successfully and {number_of_message} have been sent! {str(datetime.datetime.now())}")
+
+
+
+
+
+
 
 asyncio.run(update_wallets())
