@@ -22,9 +22,17 @@ async def update_wallets():
     mean_server_price = 0
     number_server = 0
     for i in server_dict:
-        mean_server_price += i['price']
-        number_server += 1
-    mean_server_price /= number_server
+        try:
+            price = float(i.get('price', 0))
+            mean_server_price += price
+            number_server += 1
+        except (ValueError, TypeError):
+            print(f"Warning: Invalid price for server {i.get('name', 'unknown')}: {i.get('price', 'missing')}")
+            continue
+    if number_server > 0:
+        mean_server_price /= number_server
+    else:
+        mean_server_price = 0
     xui_server = {}
     user_dicts = list(db_client[secrets['DBName']].users.find())
     number_of_updates = 0
