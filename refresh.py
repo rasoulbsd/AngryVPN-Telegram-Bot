@@ -21,7 +21,7 @@ async def update_wallets():
     mean_server_price = 0
     number_server = 0
     for i in server_dict:
-        mean_server_price += i['price']
+        mean_server_price += float(i['price'])
         # mean_server_price = mean_server_price + i['price']
         number_server += 1
     mean_server_price /= number_server
