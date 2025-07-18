@@ -66,11 +66,18 @@ async def update_wallets():
 
                         usage = (row['up'] + row['down'] - prev_usage) / (1024*1024*1024)
                         discount = 0
-                        if  'server_discount' in updated_user_dict:
+                        if 'server_discount' in updated_user_dict:
                             if server['name'] in updated_user_dict['server_discount']:
                                 discount = updated_user_dict['server_discount'][server['name']]
-                        cost = usage * server['price'] * (100 - discount) / 100
-                        if  'wallet' in updated_user_dict:
+
+                        try:
+                            server_price = float(server.get('price', 0))
+                            cost = usage * server_price * (100 - discount) / 100
+                        except (ValueError, TypeError):
+                            print(f"Warning: Invalid price for server {server.get('name', 'unknown')}: {server.get('price', 'missing')}")
+                            cost = 0
+
+                        if 'wallet' in updated_user_dict:
                             updated_user_dict['wallet'] = updated_user_dict['wallet'] - cost
                         else:
                             updated_user_dict['wallet'] = - cost
