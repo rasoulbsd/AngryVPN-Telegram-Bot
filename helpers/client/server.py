@@ -419,6 +419,15 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
 
+    user_org = db_client[secrets['DBName']].orgs.find_one({'name': list(user_dict['orgs'].keys())[0]})
+    if 'rial' in user_org['payment_options']['currencies']:
+        currency = 'rial'
+    elif 'cad' in user_org['payment_options']['currencies']:
+        currency = 'cad'
+    else:
+        print("Not Implemented")
+        raise EOFError
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -471,7 +480,7 @@ async def refresh_vmess(update: telegram.Update, context: telext.ContextTypes.DE
             max_dash = 0
             for row in servers_rowRemarks:
                 for server in servers_rowRemarks[row]['servers']:
-                    temp = f'*{server["name"]}*: ' + f'{server["price"]} ' + client_funcclient_functions_texts('price_per_gb_rial') + ' \n'
+                    temp = f'*{server["name"]}*: ' + f'{server["price"]} ' + client_functions_texts('price_per_gb_rial' if currency == 'rial' else 'price_per_gb_cad') + ' \n'
                     reply_text += temp
                     if len(temp) > max_dash:
                         max_dash = len(temp)

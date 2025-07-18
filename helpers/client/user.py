@@ -24,6 +24,15 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
 
+    user_org = db_client[secrets['DBName']].orgs.find_one({'name': list(user_dict['orgs'].keys())[0]})
+    if 'rial' in user_org['payment_options']['currencies']:
+        currency = 'rial'
+    elif 'cad' in user_org['payment_options']['currencies']:
+        currency = 'cad'
+    else:
+        print("Not Implemented")
+        raise EOFError
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -117,7 +126,7 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
                     temp = (
                         f'*{server["name"]}*: ' +
                         f'{server["price"]} ' +
-                        client_functions_texts('price_per_gb_rial') + ' \n'
+                        client_functions_texts('price_per_gb_rial' if currency == 'rial' else 'price_per_gb_cad') + ' \n'
                     )
                     reply_text += temp
                     if len(temp) > max_dash:
@@ -126,7 +135,7 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
                 f'{"-"*max_dash}\n' +
                 client_functions_texts('wallet_balance') +
                 ":\t" + f'{int(user_dict["wallet"])} ' +
-                client_functions_texts('price_rial')
+                client_functions_texts('price_rial' if currency == 'rial' else 'price_cad')
             )
 
             await update.effective_message.edit_text(
