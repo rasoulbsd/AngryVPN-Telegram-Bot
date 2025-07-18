@@ -136,7 +136,7 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
         db_client.close()
         return telext.ConversationHandler.END
     else:
-        user_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
+        user_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
 
         user_user_dict['wallet'] += float(charge_amount)
 
