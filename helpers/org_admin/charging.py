@@ -18,77 +18,68 @@ import re
 (secrets, Config) = get_secrets_config()
 
 
+# async def admin_charge_account(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+#     try:
+#         db_client = connect_to_database(secrets['DBConString'])
+#     except Exception:
+#         print("Failed to connect to the database!")
+
+#     # Dynamic language for admin
+#     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
+#     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+#     org_admin_texts = set_lang(user_lang, 'org_admin')
+
+#     query = update.callback_query
+#     await query.answer()
+#     if query.data == 'Cancel':
+#         db_client.close()
+#         return telext.ConversationHandler.END
+
+#     if not await check_subscription(update):
+#         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
+#         reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
+#         await update.effective_message.edit_text(reply_text)
+#         db_client.close()
+#         return telext.ConversationHandler.END
+
+#     selected_org = query.data['org']
+
+#     if selected_org not in db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})['orgs']:
+#         reply_text = "Unathorized! Also, How are you here?"
+#         await update.effective_message.edit_text(reply_text)
+#         db_client.close()
+#         return telext.ConversationHandler.END
+#     else:
+#         reply_text = "Please select the server with:\n\nClick cancel to abort."
+#         context.user_data['org'] = selected_org
+#         server_names = db_client[secrets['DBName']].servers.find(
+#             filter={
+#                 'org': selected_org, 
+#                 "$or": [
+#                     {'isActive': {"$exists": True, "$eq": True}},
+#                     {"isActive": {"$exists": False}}
+#                 ]
+#             },
+#             projection={'name': True}
+#         )
+#         keyboard = [
+#             [telegram.InlineKeyboardButton(s['name'], callback_data=s['name'])] for s in server_names
+#         ] + [
+#             [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
+#         ]
+#         reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+#         await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
+#         db_client.close()
+#         return ADMIN_CHARGE_ACCOUNT_USERID
+
+
 async def admin_charge_account(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try:
-        db_client = connect_to_database(secrets['DBConString'])
-    except Exception:
-        print("Failed to connect to the database!")
-
-    # Dynamic language for admin
-    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
-    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
-    org_admin_texts = set_lang(user_lang, 'org_admin')
-
-    query = update.callback_query
-    await query.answer()
-    if query.data == 'Cancel':
-        db_client.close()
-        return telext.ConversationHandler.END
-
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
-        reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
-        await update.effective_message.edit_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-
-    selected_org = query.data['org']
-
-    if selected_org not in db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})['orgs']:
-        reply_text = "Unathorized! Also, How are you here?"
-        await update.effective_message.edit_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    else:
-        reply_text = "Please select the server:\n\nClick cancel to abort."
-        context.user_data['org'] = selected_org
-        server_names = db_client[secrets['DBName']].servers.find(
-            filter={
-                'org': selected_org, 
-                "$or": [
-                    {'isActive': {"$exists": True, "$eq": True}},
-                    {"isActive": {"$exists": False}}
-                ]
-            }, 
-            projection={'name': True}
-        )
-        keyboard = [
-            [telegram.InlineKeyboardButton(s['name'], callback_data=s['name'])] for s in server_names
-        ] + [
-            [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
-        ]
-        reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-        await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
-        db_client.close()
-        return ADMIN_CHARGE_ACCOUNT_USERID
-
-
-async def admin_charge_account_with_server(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
         return telext.ConversationHandler.END
 
-    server_name = query.data
-
-    if server_name is None and server_name == "":
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="You must at first select server!"
-        )
-        return telext.ConversationHandler.END
-
-    context.user_data['server_name'] = server_name
+    context.user_data['selected_org'] = query.data['org']
 
     reply_text = "Please send the unique user id account you want to charge and the amount. Example:\n\n8475837: 5\n\nClick cancel to abort."
 
@@ -100,11 +91,7 @@ async def admin_charge_account_with_server(update: telegram.Update, context: tel
     return ADMIN_CHARGE_ACCOUNT_FINAL
 
 
-async def admin_charge_account_with_server_and_userid(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    pass
-
-
-async def admin_charge_account_with_server_and_userid_and_amount(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+async def admin_charge_account_with_userid_and_amount(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
@@ -114,6 +101,18 @@ async def admin_charge_account_with_server_and_userid_and_amount(update: telegra
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     org_admin_texts = set_lang(user_lang, 'org_admin')
+    selected_org = context.user_data['selected_org']
+
+    user_org = db_client[secrets['DBName']].orgs.find_one({'name': selected_org})
+    if 'rial' in user_org['payment_options']['currencies']:
+        currency = 'rial'
+        currency_symbol = 'T'
+    elif 'cad' in user_org['payment_options']['currencies']:
+        currency = 'cad'
+        currency_symbol = 'CAD'
+    else:
+        print("Not Implemented")
+        raise EOFError
 
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
@@ -122,8 +121,6 @@ async def admin_charge_account_with_server_and_userid_and_amount(update: telegra
         db_client.close()
         return telext.ConversationHandler.END
 
-    server_name = context.user_data['server_name']
-    selected_org = context.user_data['org']
     user_id = int(update.effective_message.text.split(":")[0])
     charge_amount = int(update.effective_message.text.split(":")[1])
 
@@ -139,102 +136,111 @@ async def admin_charge_account_with_server_and_userid_and_amount(update: telegra
         db_client.close()
         return telext.ConversationHandler.END
     else:
-        server_dict = db_client[secrets['DBName']].servers.find_one({'name': server_name})
-        user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+        user_dict['wallet'] += float(charge_amount)
 
-        user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}@{server_dict['rowRemark']}"])
+        tr_verification_data = {
+            "user_id": user_id,
+            "org": selected_org,
+            "plan": '',
+            "payment_type": 'Manual',
+            "payment_method": 'Manual',
+            "amount": charge_amount,
+            "payment_receipt": f"Manual by admin: {update.effective_chat.id}",
+            "admin": update.effective_chat.id,
+            "prev_wallet": user_dict['wallet'],
+            "new_wallet": user_dict['wallet'] + float(charge_amount),
+            "date": datetime.datetime.now().isoformat(),
+            "verified": True,
+            "failed": False
+        }
 
-        if isinstance(user_client, pd.DataFrame) and user_client.empty:
-            print("user is new")
-            result = xAPI.add_client(server_dict, user_dict['user_id'], charge_amount, user_dict['uuid'])
-            total = charge_amount
-        else:
-            total = xAPI.xui_charge_account(server_dict, user_id, charge_amount)
+        _ = (db_client[secrets['DBName']].payments.insert_one(tr_verification_data)).inserted_id
 
-        await context.bot.send_message(
-            chat_id=user_dict['user_id'],
-            text=org_admin_texts("account_charged_for") + f' {charge_amount} ' + org_admin_texts("GB") + '!\n\n' + org_admin_texts("new_limit") + f': {total} ' + org_admin_texts("GB")
-        )
+        user_org_admin_texts = set_lang(user_dict.get('lang', Config['default_language']), 'org_admin')
+        try:
+            await context.bot.send_message(
+                chat_id=user_dict['user_id'],
+                text=user_org_admin_texts("account_charged_for") +
+                    f' {charge_amount} ' + user_org_admin_texts(currency_symbol) +
+                    '!\n\n' + user_org_admin_texts("new_limit") +
+                    f': {tr_verification_data["new_wallet"]} ' +
+                    user_org_admin_texts(currency_symbol)
+            )
 
-        await context.bot.send_message(
-            chat_id=update.effective_user.id,
-            text=f"The account with userid {user_id} has been charged for {charge_amount} " + org_admin_texts("GB") + "!"
-        )
+            await context.bot.send_message(
+                chat_id=update.effective_user.id,
+                text=f"The account with userid {user_id} has been charged for {charge_amount} " + org_admin_texts(currency_symbol) + "!"
+            )
+        except Exception as err:
+            await context.bot.send_message(
+                chat_id=update.effective_user.id,
+                text=f"An error occured: {err.message}"
+            )
 
         db_client.close()
         return telext.ConversationHandler.END
+
+
+# async def admin_charge_all_accounts(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+#     try:
+#         db_client = connect_to_database(secrets['DBConString'])
+#     except Exception:
+#         print("Failed to connect to the database!")
+
+#     # Dynamic language for admin
+#     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
+#     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+#     org_admin_texts = set_lang(user_lang, 'org_admin')
+
+#     query = update.callback_query
+#     await query.answer()
+#     if query.data == 'Cancel':
+#         db_client.close()
+#         return telext.ConversationHandler.END
+
+#     if not await check_subscription(update):
+#         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
+#         reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
+#         await update.effective_message.edit_text(reply_text)
+#         db_client.close()
+#         return telext.ConversationHandler.END
+#     selected_org = query.data['org']
+#     if selected_org not in db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})['orgs']:
+#         reply_text = "Unathorized! Also, How are you here?"
+#         await update.effective_message.edit_text(reply_text)
+#         db_client.close()
+#         return telext.ConversationHandler.END
+#     else:
+#         reply_text = "Please select the server:\n\nClick cancel to abort."
+#         context.user_data['org'] = selected_org
+#         server_names = db_client[secrets['DBName']].servers.find(
+#             filter={'org': selected_org, "$or": [
+#                 {'isActive': {"$exists": True, "$eq": True}},
+#                 {"isActive": {"$exists": False}}
+#             ]}, 
+#             projection={'name': True}
+#         )
+#         keyboard = [
+#             [telegram.InlineKeyboardButton(s['name'], callback_data=s['name'])] for s in server_names
+#         ] + [
+#             [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
+#         ]
+#         reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+#         await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
+#         db_client.close()
+#         return ADMIN_CHARGE_ALL_ACCOUNTS
 
 
 async def admin_charge_all_accounts(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
-    try:
-        db_client = connect_to_database(secrets['DBConString'])
-    except Exception:
-        print("Failed to connect to the database!")
-
-    # Dynamic language for admin
-    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_user.id})
-    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
-    org_admin_texts = set_lang(user_lang, 'org_admin')
-
-    query = update.callback_query
-    await query.answer()
-    if query.data == 'Cancel':
-        db_client.close()
-        return telext.ConversationHandler.END
-
-    if not await check_subscription(update):
-        main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
-        reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
-        await update.effective_message.edit_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    selected_org = query.data['org']
-    if selected_org not in db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})['orgs']:
-        reply_text = "Unathorized! Also, How are you here?"
-        await update.effective_message.edit_text(reply_text)
-        db_client.close()
-        return telext.ConversationHandler.END
-    else:
-        reply_text = "Please select the server:\n\nClick cancel to abort."
-        context.user_data['org'] = selected_org
-        server_names = db_client[secrets['DBName']].servers.find(
-            filter={'org': selected_org, "$or": [
-                {'isActive': {"$exists": True, "$eq": True}},
-                {"isActive": {"$exists": False}}
-            ]}, 
-            projection={'name': True}
-        )
-        keyboard = [
-            [telegram.InlineKeyboardButton(s['name'], callback_data=s['name'])] for s in server_names
-        ] + [
-            [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
-        ]
-        reply_markup = telegram.InlineKeyboardMarkup(keyboard)
-        await update.effective_message.edit_text(reply_text, reply_markup=reply_markup, parse_mode=telegram.constants.ParseMode.MARKDOWN)
-        db_client.close()
-        return ADMIN_CHARGE_ALL_ACCOUNTS
-
-
-async def admin_charge_all_accounts_with_server(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
         return telext.ConversationHandler.END
 
-    server_name = query.data
+    query = update.callback_query
+    context.user_data['org'] = query.data['org']
 
-    if server_name is None and server_name == "":
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="You must at first select server!"
-        )
-        return telext.ConversationHandler.END
-
-    context.user_data['server_name'] = server_name
-    selected_org = context.user_data['org']
-
-    reply_text = "Please send the amount you want to charge in " + org_admin_texts("GB") + ":\nExample: 5\n\nClick cancel to abort."
-    context.user_data['org'] = selected_org
+    reply_text = "Please send the amount you want to charge:\nExample: 5\n\nClick cancel to abort."
 
     keyboard = [
         [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
@@ -255,6 +261,19 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     org_admin_texts = set_lang(user_lang, 'org_admin')
 
+    selected_org = context.user_data['org']
+
+    user_org = db_client[secrets['DBName']].orgs.find_one({'name': selected_org})
+    if 'rial' in user_org['payment_options']['currencies']:
+        currency = 'rial'
+        currency_symbol = 'T'
+    elif 'cad' in user_org['payment_options']['currencies']:
+        currency = 'cad'
+        currency_symbol = 'CAD'
+    else:
+        print("Not Implemented")
+        raise EOFError
+
     if not await check_subscription(update):
         main_channel = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})['channel']['link']
         reply_text = org_admin_texts('join_channel') + f'\n\n{main_channel}'
@@ -262,8 +281,6 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
         db_client.close()
         return telext.ConversationHandler.END
 
-    server_name = context.user_data['server_name']
-    selected_org = context.user_data['org']
     if selected_org not in db_client[secrets['DBName']].admins.find_one({'user_id': update.effective_user.id})['orgs']:
         reply_text = "Unathorized! Also, How are you here?"
         await update.effective_message.reply_text(reply_text)
@@ -271,24 +288,50 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
         return telext.ConversationHandler.END
     else:
         user_ids = db_client[secrets['DBName']].users.find(
-            projection={'user_id': True}, 
-            filter={'server_names': {'$in': [server_name]},
-                f"orgs.{selected_org}": { '$exists': True }
+            filter={
+                f"orgs.{selected_org}": {'$exists': True}
             }
         )
-        server_dict = db_client[secrets['DBName']].servers.find_one({'name': server_name})
 
         count = 0
+        failed_users = []
         for user_obj in user_ids:
             count += 1
-            print(user_obj['user_id'])
             charge_amount = int(update.effective_message.text)
+            user_dict['wallet'] += float(charge_amount)
 
-            total = xAPI.xui_charge_account(server_dict, user_obj['user_id'], charge_amount)
-            await context.bot.send_message(
-                chat_id=user_obj['user_id'],
-                text=org_admin_texts("account_charged_for") + f' {charge_amount} ' + org_admin_texts("GB") + '!\n\n' + org_admin_texts("new_limit") + f': {total} ' + org_admin_texts("GB")
-            )
+            tr_verification_data = {
+                "user_id": user_obj['user_id'],
+                "org": selected_org,
+                "plan": '',
+                "payment_type": 'Charge All',
+                "payment_method": 'Charge All',
+                "amount": charge_amount,
+                "payment_receipt": f"Charge All by admin: {update.effective_chat.id}",
+                "admin": update.effective_chat.id,
+                "prev_wallet": user_obj['wallet'],
+                "new_wallet": user_obj['wallet'] + float(charge_amount),
+                "date": datetime.datetime.now().isoformat(),
+                "verified": True,
+                "failed": False
+            }
+
+            _ = (db_client[secrets['DBName']].payments.insert_one(tr_verification_data)).inserted_id
+
+            user_org_admin_texts = set_lang(user_obj.get('lang', Config['default_language']), 'org_admin')
+            try:
+                await context.bot.send_message(
+                    chat_id=user_obj['user_id'],
+                    text=user_org_admin_texts("account_charged_for") +
+                        f' {charge_amount} ' + user_org_admin_texts(currency_symbol) +
+                        '!\n\n' + user_org_admin_texts("new_limit") +
+                        f': {tr_verification_data["new_wallet"]} ' +
+                        user_org_admin_texts(currency_symbol)
+                )
+            except Exception as err:
+                failed_users.append(user_obj['user_id'])
+                print(err)
+
         if count == 0:
             await context.bot.send_message(
                 chat_id=update.effective_user.id,
@@ -297,8 +340,13 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
         else:
             await context.bot.send_message(
                 chat_id=update.effective_user.id,
-                text=f"All account have been charged for {int(update.effective_message.text)} " + org_admin_texts("GB") + f"!\nNumber of accounts were updadted: {count}"
+                text=f"All account have been charged for {int(update.effective_message.text)} " + org_admin_texts(currency_symbol) + f"!\nNumber of accounts were updadted: {count}"
             )
+            if len(failed_users) != 0:
+                await context.bot.send_message(
+                    chat_id=update.effective_user.id,
+                    text=f"Failed Users: {failed_users}"
+                )
         db_client.close()
         return telext.ConversationHandler.END
 

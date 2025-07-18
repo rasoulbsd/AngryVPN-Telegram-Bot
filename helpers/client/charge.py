@@ -124,11 +124,6 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
 
     context.user_data['payment_method'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['method']
     if context.user_data['payment_method'] == 'e-transfer':
-        print("ge")
-        print(context.user_data['currency'])
-        print("he")
-        print(user_org['payment_options']['currencies'])
-        print('je')
         if context.user_data['currency'] == 'rial':
             reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("send_crypto_transaction_receipt") + ':'
             if "card_number" in org_obj['payment_options']['currencies'][context.user_data['currency']] and org_obj['payment_options']['currencies'][context.user_data['currency']]['card_number'] != "":
@@ -151,10 +146,7 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
     else:
         reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("zarinpal_message") + ':\n\n' + client_functions_texts('cancel_to_abort')
         context.user_data['merchant_id'] = org_obj['payment_options']['currencies']['rial']['merchant_id']
-        # description = u'خرید پلن'+query.data['plan']
-        # email=''
-        # mobile=''
-        secret_url=sc.token_urlsafe()
+        secret_url = sc.token_urlsafe()
         context.user_data['pay_amount'] = org_obj['payment_options']['currencies']['rial']['plans'][query.data['plan']]
         context.user_data['payment_type'] = 'rial'
         url = "https://api.zarinpal.com/pg/v4/payment/request.json"
