@@ -97,6 +97,15 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
 
+    user_org = db_client[secrets['DBName']].orgs.find_one({'name': list(user_dict['orgs'].keys())[0]})
+    if 'rial' in user_org['payment_options']['currencies']:
+        context.user_data['currency'] = 'rial'
+    elif 'cad' in user_org['payment_options']['currencies']:
+        context.user_data['currency'] = 'cad'
+    else:
+        print("Not Implemented")
+        raise EOFError
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -115,16 +124,21 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
 
     context.user_data['payment_method'] = org_obj['payment_options']['currencies'][context.user_data['currency']]['method']
     if context.user_data['payment_method'] == 'e-transfer':
+        print("ge")
+        print(context.user_data['currency'])
+        print("he")
+        print(user_org['payment_options']['currencies'])
+        print('je')
         if context.user_data['currency'] == 'rial':
             reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("send_crypto_transaction_receipt") + ':'
             if "card_number" in org_obj['payment_options']['currencies'][context.user_data['currency']] and org_obj['payment_options']['currencies'][context.user_data['currency']]['card_number'] != "":
                 reply_text += '\n\n' + client_functions_texts("card_number") + f': `{org_obj["payment_options"]["currencies"][context.user_data["currency"]]["card_number"]}`'
         else:
             reply_text = client_functions_texts("selected_plan") + f': {query.data["plan"]} Pack\n' + client_functions_texts("etransfer_instruction") + ":"
-        if "email" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['email'] != "":
-            reply_text += '\n\n' + client_functions_texts("email") + f': `{org_obj["payment_options"]["currencies"]["cad"]["email"]}`'
-        elif "phone_number" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['phone_number'] != "":
-            reply_text += '\n\n' + client_functions_texts("phone_number") + f': `{org_obj["payment_options"]["currencies"]["cad"]["phone_number"]}`'
+            if "email" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['email'] != "":
+                reply_text += '\n\n' + client_functions_texts("email") + f': `{org_obj["payment_options"]["currencies"]["cad"]["email"]}`'
+            elif "phone_number" in org_obj['payment_options']['currencies']['cad'] and org_obj['payment_options']['currencies']['cad']['phone_number'] != "":
+                reply_text += '\n\n' + client_functions_texts("phone_number") + f': `{org_obj["payment_options"]["currencies"]["cad"]["phone_number"]}`'
 
         reply_text += '\n\n' + client_functions_texts("cancel_to_abort")
         keyboard = [

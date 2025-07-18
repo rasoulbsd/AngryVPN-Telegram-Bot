@@ -24,10 +24,15 @@ async def start(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TY
     org_main = db_client[secrets['DBName']].orgs.find_one({'name': 'main'})
     is_in_production = org_main.get('isInProduction', True)
     development_message = org_main.get('development_message', "Under Development!\nPlease be patient while we are fixing things.\n\n…")
+
     if not is_in_production:
+        admin_usr = db_client[secrets['DBName']].admins.find_one({'user_id': update.message.from_user.id})
         await update.message.reply_text(development_message)
-        db_client.close()
-        return
+        if admin_usr is not None:
+            await update.message.reply_text("Skipping for Admin")
+        else:
+            db_client.close()
+            return
     # --- End development mode check ---
 
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.message.from_user.id})
@@ -85,9 +90,13 @@ async def menu(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYP
     is_in_production = org_main.get('isInProduction', True)
     development_message = org_main.get('development_message', "Under Development!\nPlease be patient while we are fixing things.\n\n…")
     if not is_in_production:
+        admin_usr = db_client[secrets['DBName']].admins.find_one({'user_id': update.message.from_user.id})
         await update.message.reply_text(development_message)
-        db_client.close()
-        return
+        if admin_usr is not None:
+            await update.message.reply_text("Skipping for Admin")
+        else:
+            db_client.close()
+            return
     # --- End development mode check ---
 
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': update.effective_chat.id})
@@ -233,9 +242,13 @@ async def change_lang(update: telegram.Update, context: telext.ContextTypes.DEFA
     is_in_production = org_main.get('isInProduction', True)
     development_message = org_main.get('development_message', "Under Development!\nPlease be patient while we are fixing things.\n\n…")
     if not is_in_production:
+        admin_usr = db_client[secrets['DBName']].admins.find_one({'user_id': update.message.from_user.id})
         await update.message.reply_text(development_message)
-        db_client.close()
-        return
+        if admin_usr is not None:
+            await update.message.reply_text("Skipping for Admin")
+        else:
+            db_client.close()
+            return
     # --- End development mode check ---
 
     user_id = update.effective_user.id

@@ -565,7 +565,7 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
     if context.user_data['currency'] == 'cad':
         currency_text = f' {float(credentials["pay_amount"].split(",")[0])} ' + org_admin_texts('CAD')
     else:
-        currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts['T']
+        currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts('T')
 
     text = org_admin_texts("verified_payment") + '\n' + org_admin_texts("account_charged_for") + currency_text + '!\n'
     if credentials['is_new_user']:
@@ -667,7 +667,7 @@ async def resubmission(update: telegram.Update, context: telext.ContextTypes.DEF
     if context.user_data['currency'] == 'cad':
         currency_text = f' {float(credentials["pay_amount"].split(",")[0])} ' + org_admin_texts('CAD')
     else:
-        currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts['T']
+        currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts('T')
 
     text = org_admin_texts("verified_payment") + '\n' + org_admin_texts("account_charged_for") + currency_text + '!\n'
     if credentials['is_new_user']:
