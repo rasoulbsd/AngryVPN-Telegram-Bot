@@ -163,13 +163,17 @@ async def admin_charge_account_with_userid_and_amount(update: telegram.Update, c
         _ = (db_client[secrets['DBName']].payments.insert_one(tr_verification_data)).inserted_id
 
         user_org_admin_texts = set_lang(user_user_dict.get('lang', Config['default_language']), 'org_admin')
+        if currency == 'rial':
+            multiply_factor = 1000
+        else:
+            multiply_factor = 1
         try:
             await context.bot.send_message(
                 chat_id=user_user_dict['user_id'],
                 text=user_org_admin_texts("account_charged_for") +
-                    f' {charge_amount} ' + user_org_admin_texts(currency_symbol) +
+                    f' {charge_amount*multiply_factor:.2f} ' + user_org_admin_texts(currency_symbol) +
                     '!\n\n' + user_org_admin_texts("new_limit") +
-                    f': {tr_verification_data["new_wallet"]} ' +
+                    f': {tr_verification_data["new_wallet"]*multiply_factor:.2f} ' +
                     user_org_admin_texts(currency_symbol)
             )
 

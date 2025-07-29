@@ -257,4 +257,5 @@ async def ban_member_inputed(update: telegram.Update, context: telext.ContextTyp
             ),
         )
         db_client.close()
-        return telext.ConversationHandler.END 
+        return telext.ConversationHandler.END
+

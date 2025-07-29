@@ -69,7 +69,10 @@ async def update_wallets():
 
                         db_client[secrets['DBName']].users.update_one({'user_id': int(id)}, {"$set": {"wallet": updated_user_dict['wallet'], "server_usage": updated_user_dict['server_usage']}})
 
-
+                        latest_transaction = db_client[secrets['DBName']].payments.find_one(
+                            {'user_id': int(id)},
+                            sort=[('_id', -1)]
+                        )
                         if updated_user_dict['wallet'] < 0:
                             temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, -1)
                             if temp:
@@ -85,8 +88,7 @@ async def update_wallets():
                             except Exception as e2:
                                 print(e2)
                                 # exit()
-
-                        elif updated_user_dict['wallet'] < 5 * mean_server_price:
+                        elif updated_user_dict['wallet'] < latest_transaction['amount']*0.85:
                             # print(user_dict['wallet']< 5 * mean_server_price)
                             temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 0)
                             if temp:

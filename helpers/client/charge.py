@@ -150,9 +150,13 @@ async def user_charge_account_with_plan(update: telegram.Update, context: telext
         context.user_data['pay_amount'] = org_obj['payment_options']['currencies']['rial']['plans'][query.data['plan']]
         context.user_data['payment_type'] = 'rial'
         url = "https://api.zarinpal.com/pg/v4/payment/request.json"
+        if context.user_data['payment_type'] == 'rial':
+            multiply_factor = 10000
+        else:
+            multiply_factor = 1
         payload = {
             "merchant_id": context.user_data['merchant_id'],
-            "amount": int(context.user_data['pay_amount'])*10000,
+            "amount": int(context.user_data['pay_amount'])*multiply_factor,
             "callback_url": "http://t.me/"+secrets["BOT_USERNAME"],
             "description": "خرید پلن"+query.data['plan'],
         }

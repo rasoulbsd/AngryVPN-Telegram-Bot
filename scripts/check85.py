@@ -16,10 +16,22 @@ async def send_warning_message(db ,user_dict, status = 0):
         db.users.update_one({'user_id': user_dict['user_id']}, {"$set": {"status": user_dict['status']}})
     reply_text = f"آی‌دی شما: `{user_dict['user_id']}`"
 
+    latest_transaction = db.payments.find_one(
+        {'user_id': user_dict['user_id'], 'verified': True},
+        sort=[('_id', -1)]
+    )
+
     reply_text += "\n\n"
-    reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ اعتبار شما کمتر از ۵ گیگ است. لطفا سریعا حسابتان را شارژ نمایید. ⚠️"
+    # reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ اعتبار شما کمتر از ۵ گیگ است. لطفا سریعا حسابتان را شارژ نمایید. ⚠️"
+    reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ شما بیشتر از ۸۵٪ بسته‌ی آخر خود را مصرف کرده‌اید. لطفا اعتبار حسابتان را بررسی کرده و در صورت نیاز شارژ کنید. ⚠️"
     reply_text += "\n"
-    reply_text += f"\nکیف پول: {user_dict['wallet']*1000:.2f} تومان"
+
+    if latest_transaction['payment_type'] == 'rial':
+        multiply_factor = 1000
+    else:
+        multiply_factor = 1
+
+    reply_text += f"\nکیف پول: {user_dict['wallet']*multiply_factor:.2f} تومان"
     flag = False
     if user_dict['status'] != status:
         if status == -1 or status == 0:

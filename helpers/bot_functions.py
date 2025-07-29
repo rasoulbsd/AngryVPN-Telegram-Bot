@@ -183,10 +183,10 @@ async def after_automatic_payment(update, context):
     text += '\n'
     text += bot_functions_texts("account_charged_for")
     text += f' {charge_amount} ' + bot_functions_texts("GB") + '!\n'
-    text += bot_functions_texts("after_added_to_org") 
-    text += f': \n\n{org_channel}\n\n' 
-    text += bot_functions_texts("thanks_joining") 
-    text += f' *{secrets["DBName"]}* ' 
+    text += bot_functions_texts("after_added_to_org")
+    text += f': \n\n{org_channel}\n\n'
+    text += bot_functions_texts("thanks_joining")
+    text += f' *{secrets["DBName"]}* '
     text += bot_functions_texts("group")
     text += ' 🤍️'
 

@@ -137,6 +137,8 @@ async def manage_my_org_server(update: telegram.Update, context: telext.ContextT
         keyboard = [
             [telegram.InlineKeyboardButton('Switch Active Join', callback_data={'task': 'Switch Server Active Join', 'org': selected_org, 'server': selected_server})],
             [telegram.InlineKeyboardButton('Change Traffic', callback_data={'task': 'Change Server Traffic', 'org': selected_org, 'server': selected_server})],
+            [telegram.InlineKeyboardButton('Disable Server', callback_data=f'disable_server:{selected_server}')],
+            [telegram.InlineKeyboardButton('Enable Server', callback_data=f'enable_server:{selected_server}')],
             [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
         ]
         
@@ -185,6 +187,8 @@ async def switch_server_active_join(update: telegram.Update, context: telext.Con
         keyboard = [
             [telegram.InlineKeyboardButton('Switch Active Join', callback_data={'task': 'Switch Server Active Join', 'org': selected_org, 'server': selected_server})],
             [telegram.InlineKeyboardButton('Change Traffic', callback_data={'task': 'Change Server Traffic', 'org': selected_org, 'server': selected_server})],
+            [telegram.InlineKeyboardButton('Disable Server', callback_data=f'disable_server:{selected_server}')],
+            [telegram.InlineKeyboardButton('Enable Server', callback_data=f'enable_server:{selected_server}')],
             [telegram.InlineKeyboardButton('❌ Cancel', callback_data='Cancel')]
         ]
         
@@ -260,3 +264,37 @@ async def change_server_traffic_inputed(update: telegram.Update, context: telext
         await update.effective_message.reply_text(reply_text, parse_mode=telegram.constants.ParseMode.MARKDOWN)
         db_client.close()
         return telext.ConversationHandler.END 
+
+# Handler to disable a server and all user accounts for that server
+async def disable_server_callback(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    server_name = query.data.split(":", 1)[1]
+    db_client = connect_to_database(secrets['DBConString'])
+    # Set server inactive
+    db_client[secrets['DBName']].servers.update_one({'name': server_name}, {'$set': {'isActive': False}})
+    # Disable all user accounts for this server
+    db_client[secrets['DBName']].users.update_many(
+        {'server_names': server_name},
+        {'$set': {f'server_enabled.{server_name}': False}}
+    )
+    await query.edit_message_text(f"Server {server_name} has been disabled. All user accounts for this server are now disabled.")
+    db_client.close()
+
+# Handler to enable a server and all user accounts with positive wallet
+async def enable_server_callback(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    server_name = query.data.split(":", 1)[1]
+    db_client = connect_to_database(secrets['DBConString'])
+    # Set server active
+    db_client[secrets['DBName']].servers.update_one({'name': server_name}, {'$set': {'isActive': True}})
+    # Enable user accounts with positive wallet
+    users = db_client[secrets['DBName']].users.find({'server_names': server_name, 'wallet': {'$gt': 0}})
+    for user in users:
+        db_client[secrets['DBName']].users.update_one(
+            {'user_id': user['user_id']},
+            {'$set': {f'server_enabled.{server_name}': True}}
+        )
+    await query.edit_message_text(f"Server {server_name} has been enabled. All user accounts with positive wallet are now enabled.")
+    db_client.close() 
