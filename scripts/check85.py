@@ -1,5 +1,5 @@
 from telegram import Bot
-from helpers.initial import get_secrets_config
+from helpers.initial import get_secrets_config, set_lang
 
 # asda
 (secrets, Config) = get_secrets_config()
@@ -8,7 +8,7 @@ TOKEN=secrets['BotAPI']
 bot=Bot(token=TOKEN)
 
 # 0 warning, -1 exceed
-async def send_warning_message(db ,user_dict, status = 0):
+async def send_warning_message(db, user_dict, status = 0):
     print(f"Sending message to {user_dict['user_id']}")
 
     if 'status' not in user_dict:
@@ -20,10 +20,12 @@ async def send_warning_message(db ,user_dict, status = 0):
         {'user_id': user_dict['user_id'], 'verified': True},
         sort=[('_id', -1)]
     )
+    user_lang = 'en' if 'lang' in user_dict['lang'] and user_dict['lang'] == 'en' else 'fa'
+    org_admin_texts = set_lang(user_lang, 'org_admin')
 
     reply_text += "\n\n"
     # reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ اعتبار شما کمتر از ۵ گیگ است. لطفا سریعا حسابتان را شارژ نمایید. ⚠️"
-    reply_text += "❌ اعتبار شما تمام شد! لطفا از طریق منو حسابتان را شارژ کنید. ❌" if status == -1 else "⚠️ شما بیشتر از ۸۵٪ بسته‌ی آخر خود را مصرف کرده‌اید. لطفا اعتبار حسابتان را بررسی کرده و در صورت نیاز شارژ کنید. ⚠️"
+    reply_text += org_admin_texts("exceed_message") if status == -1 else org_admin_texts("85_warning_message")
     reply_text += "\n"
 
     if latest_transaction['payment_type'] == 'rial':
