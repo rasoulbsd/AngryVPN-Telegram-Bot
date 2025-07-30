@@ -342,7 +342,7 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
                 await context.bot.send_message(
                     chat_id=user_obj['user_id'],
                     text=user_org_admin_texts("account_charged_for") +
-                        f' {charge_amount} ' + user_org_admin_texts(currency_symbol) +
+                        f' {charge_amount*multiply_factor:.2f} ' + user_org_admin_texts(currency_symbol) +
                         '!\n\n' + user_org_admin_texts("new_limit") +
                         f': {tr_verification_data["new_wallet"]*multiply_factor:.2f} ' +
                         user_org_admin_texts(currency_symbol)
