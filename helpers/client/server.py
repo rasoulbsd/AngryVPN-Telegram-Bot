@@ -254,7 +254,7 @@ async def get_vmess_start(update: telegram.Update, context: telext.ContextTypes.
             reply_text += client_functions_texts("servers_list") +'\n\n'
             servers_rowRemarks = {}
             for s in server_list:
-                if(s['rowRemark'] not in servers_rowRemarks):
+                if (s['rowRemark'] not in servers_rowRemarks):
                     servers_rowRemarks[s['rowRemark']] = {}
                     servers_rowRemarks[s['rowRemark']]['servers'] = []
                     servers_rowRemarks[s['rowRemark']]['traffic'] = s['traffic']
@@ -595,7 +595,7 @@ async def revoke_servers(update: telegram.Update, context: telext.ContextTypes.D
         reply_markup=reply_markup,
         parse_mode=telegram.constants.ParseMode.MARKDOWN
     )
-    
+
     db_client.close()
     return REVOKE_SERVERS
 
@@ -676,7 +676,7 @@ async def revoke_servers_accepted(update: telegram.Update, context: telext.Conte
         # Prepare response message
     if revoked_count > 0:
         reply_text = client_functions_texts("revoke_success") + str(revoked_count)
-        
+
         # if failed_count > 0:
         #     reply_text += f"\n❌ Failed to revoke {failed_count} server(s)"
     else:
@@ -727,20 +727,20 @@ async def send_server_selection_message(update, context, user_dict, db_client):
             }
         ],
     }))
-    
+
     if not server_list:
         return
-    
+
     # Find recommended and active servers
     recommended_servers = []
     active_servers = []
-    
+
     for server in server_list:
         if server.get('isRecommended', False):
             recommended_servers.append(server)
         elif server.get('isActive', True):  # Default to True if not specified
             active_servers.append(server)
-    
+
     # Select servers to show
     servers_to_show = []
     if recommended_servers:
@@ -749,16 +749,16 @@ async def send_server_selection_message(update, context, user_dict, db_client):
     elif active_servers:
         # Show the first active server
         servers_to_show = [active_servers[0]]
-    
+
     if not servers_to_show:
         return
-    
+
     # Send configuration for each selected server
     for server_dict in servers_to_show:
         try:
             # Get or create client for this server
             user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}"])
-            
+
             if user_client is None or user_client.empty:
                 # Create new client if it doesn't exist
                 import uuid
@@ -775,38 +775,38 @@ async def send_server_selection_message(update, context, user_dict, db_client):
             else:
                 user_client = user_client.iloc[0]
                 user_uuid = user_client['uuid']
-            
+
             # Generate VMess configuration
             vmess_str = xAPI.generate_vmess(
                 server_dict,
                 f"{user_dict['user_id']}",
                 user_uuid
             )
-            
+
             # Create message content
             server_name = server_dict['name']
             is_recommended = server_dict.get('isRecommended', False)
             is_new = server_dict.get('isNew', False)
-            
+
             if is_recommended:
                 header = f"⭐ **{server_name}** (Recommended)"
             elif is_new:
                 header = f"🔴 **{server_name}** (New)"
             else:
                 header = f"📱 **{server_name}**"
-            
+
             reply_text = f"{header}\n"
             reply_text += f"Remark: `{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}`\n"
             reply_text += f"{'-'*25}\n\n"
             reply_text += f"`{vmess_str}`"
-            
+
             # Send as a new message
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=reply_text,
                 parse_mode=telegram.constants.ParseMode.MARKDOWN
             )
-            
+
         except Exception as e:
             print(f"Error generating config for server {server_dict['name']}: {str(e)}")
             continue
