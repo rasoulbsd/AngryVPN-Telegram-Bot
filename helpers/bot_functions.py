@@ -157,7 +157,7 @@ async def after_automatic_payment(update, context):
 
     user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}@{server_dict['rowRemark']}"])
     if user_client is None:
-        result = xAPI.add_client(server_dict, user_dict['user_id'], charge_amount, user_dict['uuid'], 
+        result = xAPI.add_client(server_dict, user_dict['user_id'], charge_amount, user_dict['uuid'],
                         # expires:datetime.datetime=None
                         )
     elif context.user_data['is_new_user']:

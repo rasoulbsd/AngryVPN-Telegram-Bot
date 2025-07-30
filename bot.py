@@ -3,7 +3,7 @@ from helpers.initial import connect_to_database, get_secrets_config
 from dotenv import load_dotenv
 
 from helpers.commands import start, menu, cancel, admin, cancel_command, change_lang, set_lang_callback
-from helpers.client.server import get_unified_servers, deliver_vmess, get_status, deliver_vmess_status
+from helpers.client.server import revoke_servers, revoke_servers_accepted, get_unified_servers, deliver_vmess, get_status, deliver_vmess_status
 from helpers.client.user import get_userinfo
 from helpers.client.ticket import receive_ticket, receive_ticket_inputed
 from helpers.client.charge import user_charge_account, user_charge_account_with_plan, user_charge_acc_unified
@@ -24,7 +24,7 @@ from helpers.org_admin.charging import admin_charge_account, admin_charge_accoun
 from telegram.ext import PicklePersistence
 from helpers.bot_functions import usage_exceed
 from helpers.states import (
-    DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
+    REVOKE_SERVERS, DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, ORG_MNGMNT_SELECT_OPTION, MY_ORG_MNGMNT_SELECT_OPTION,
     RECEIVE_TICKET, USER_RECHARGE_ACCOUNT_SELECT_PLAN, USER_RECHARGE_ACCOUNT, USER_RECHARGE_ACCOUNT_RIAL_ZARIN, USER_RECHARGE_ACCOUNT_RIAL_ZARIN_PAID,
     NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
     ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
@@ -87,7 +87,18 @@ if __name__ == '__main__':
         name="vmess_handler"
     )
 
-
+    revoke_handler = telext.ConversationHandler(
+        entry_points=[telext.CallbackQueryHandler(revoke_servers, pattern='^Revoke All Connections$')],
+        states={
+            REVOKE_SERVERS: [
+                telext.CallbackQueryHandler(revoke_servers_accepted, pattern='^Accept$'),
+            ],
+        },
+        fallbacks=[telext.CallbackQueryHandler(cancel, pattern='^Cancel$')],
+        per_message=True,
+        allow_reentry=False,
+        name="revoke_handler"
+    )
 
     userinfo_handler = telext.ConversationHandler(
         entry_points=[telext.CallbackQueryHandler(get_userinfo, pattern='^Get User Info$')],
@@ -299,15 +310,14 @@ if __name__ == '__main__':
     application.add_handler(admin_handler)
 
     application.add_handler(vmess_handler)
+    application.add_handler(revoke_handler)
     application.add_handler(userinfo_handler)
     application.add_handler(receive_ticket_handler)
     application.add_handler(charge_acc_handler)
     application.add_handler(purchase_acc_handler)
     application.add_handler(status_handler)
 
-    
     application.add_handler(cancel_handler, group=10)
     application.add_handler(receipt_checking_handler)
-    
-    application.run_polling()
 
+    application.run_polling()

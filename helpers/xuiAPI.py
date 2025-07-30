@@ -403,32 +403,94 @@ def xui_charge_account(server_dict, user_id, charge_amount, new=False):
     return round(float(client['totalGB'])/1024**3, 5)
 
 
-def change_usage(user_id, server_dict, up, down):
+def change_uuid(user_id, server_dict, new_uuid):
+    """
+    Changes the UUID of a client for a given user_id on the specified server.
+    """
     row = get_remark(server_dict)
     clients_list = json.loads(row['settings'])['clients']
+    client_found = False
+    old_uuid = ''
     for client in clients_list:
-        if client['email'] == f'{user_id}@{server_dict["rowRemark"]}':
-            print(client)
+        if client['email'] == f'{user_id}-{server_dict["name"]}@{server_dict["rowRemark"]}':
+            # if client['email'] == f'{user_id}@{server_dict["rowRemark"]}':
+            old_uuid = client['id']
+            client['id'] = new_uuid
+            client_found = True
             break
-    # exit()
 
-    row_settings = json.loads(row['settings'])
-    row_settings['clients'] = clients_list
+    if not client_found:
+        return (-1, "Client not found")
 
+    row_id = row.pop('id', None)
+    payload = {
+        "id": row_id,
+        "settings": json.dumps({
+            "clients": [client]
+        }),
+        "disableInsecureEncryption": json.dumps(True)
+    }
+
+    result = update_client_request(server_dict, old_uuid, payload)
+    if result[0] == -1:
+        return (-1, result[1])
+
+    return (1, "UUID changed successfully")
+
+
+def change_usage(user_id, server_dict, up, down):
+    """
+    Updates the up and down usage values for a client.
+    This function modifies the clientStats data which contains usage information.
+    """
+    row = get_remark(server_dict)
+    client_stats = row['clientStats']
+
+    # Find the client in clientStats
+    target_email = f'{user_id}-{server_dict["name"]}@{server_dict["rowRemark"]}'
+    client_found = False
+
+    for client_stat in client_stats:
+        if client_stat['email'] == target_email:
+            # Update the up and down values
+            client_stat['up'] = up
+            client_stat['down'] = down
+            client_found = True
+            break
+
+    if not client_found:
+        return (-1, "Client not found in stats")
+
+    # Update the row with modified clientStats
     row_id = row.pop('id', None)
 
     payload = {
         "id": row_id,
-        "settings": json.dumps(row_settings),
+        "clientStats": json.dumps(client_stats),
         "disableInsecureEncryption": json.dumps(True)
     }
 
-    # add_client_request(server_dict, payload)
+    # Use the update endpoint to modify the client stats
+    headers = {
+        'Accept': "application/json, text/plain, */*",
+        'Accept-Language': "en-US,en;q=0.9",
+        'Content-Type': "application/x-www-form-urlencoded; charset=UTF-8",
+        'Cookie': f'x-ui={get_cookie(server_dict)}',
+        'Authorization': server_dict.get('httpAuth', None),
+        'X-Requested-With': "XMLHttpRequest"
+    }
 
-    return round(float(client['totalGB'])/1024**3, 5)
-    # user_client = get_clients(server_dict, select=[f"{user_id}"])
+    res = requests.post(
+        f"{server_dict['url']}/xui/inbound/update/{row_id}",
+        headers=headers,
+        data=urllib.parse.urlencode(payload)
+    )
 
-    # return (round(float(user_client.down.iloc[0])/1024**3+float(user_client.up.iloc[0])/1024**3, 5), round(float(user_client.total.iloc[0])/1024**3, 5))
+    result = json.loads(res.text)
+    if not result['success']:
+        return (-1, result['msg'])
+
+    return (1, "Usage updated successfully")
 
 # def update_client(server_dict, traffic, user_obj):
 #     row = get_remark(server_dict)
@@ -515,3 +577,25 @@ def get_online_users(server_dict):
     except Exception as e:
         print(f"Error fetching online users: {e}")
         return None
+
+
+def regenerate_client_uuid(server_dict, user_id):
+    """
+    Regenerates a client's UUID by deleting the current client and recreating it with a new UUID.
+    Preserves the usage data (totalGB) from the original client.
+    """
+    import uuid
+
+    user_client = get_clients(server_dict, select=[f"{user_id}-{server_dict['name']}@{server_dict['rowRemark']}"])
+
+    if user_client is None or user_client.empty:
+        return (-1, "Client not found")
+
+    user_client = user_client.iloc[0]
+
+    new_uuid = str(uuid.uuid4())
+
+    result = change_uuid(user_id=user_id, server_dict=server_dict, new_uuid=new_uuid)
+    print(result)
+
+    return (1, new_uuid)

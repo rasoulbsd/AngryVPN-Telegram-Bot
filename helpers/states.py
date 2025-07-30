@@ -55,6 +55,7 @@ NEW_USER_MENU = range(1)
 DELIVER_SERVER = range(1)
 DELIVER_USER_VMESS_STATUS = range(1)
 DELIVER_REFRESH_VMESS = range(1)
+REVOKE_SERVERS = range(1)
 
 # Receipt checking states
 REJECT, ACCEPT, REJECT_CHECK, RESUBMMIT = range(4)

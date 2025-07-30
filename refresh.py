@@ -88,7 +88,7 @@ async def update_wallets():
                             except Exception as e2:
                                 print(e2)
                                 # exit()
-                        elif updated_user_dict['wallet'] < latest_transaction['amount']*0.85:
+                        elif updated_user_dict['wallet'] < latest_transaction['amount']*0.15:
                             # print(user_dict['wallet']< 5 * mean_server_price)
                             temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 0)
                             if temp:

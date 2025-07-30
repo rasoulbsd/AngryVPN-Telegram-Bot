@@ -329,3 +329,48 @@ msgstr "HezarToman"
 
 msgid "price_cad"
 msgstr "CAD"
+
+msgid "revoke_success"
+msgstr "✅ Operation Successfully Completed.nGet the servers again from the menu.nn Number of servers' revoked:"
+
+msgid "revoke_failed"
+msgstr "❌ Failed to revoke any servers.nnPlease contact support."
+
+msgid "revoke_title"
+msgstr "🔄 Revoke All Connections"
+
+msgid "revoke_what_happens"
+msgstr "What will happen:"
+
+msgid "revoke_configs_invalid"
+msgstr "• All your current VMess configurations will become invalid"
+
+msgid "revoke_new_configs"
+msgstr "• New configurations will be generated with fresh UUIDs"
+
+msgid "revoke_preserve_data"
+msgstr "• Your usage data and account settings will be preserved"
+
+msgid "revoke_immediate_configs"
+msgstr "• You'll receive recommended new configurations immediately"
+
+msgid "revoke_important_notes"
+msgstr "Important Notes:"
+
+msgid "revoke_cannot_undo"
+msgstr "• This action cannot be undone"
+
+msgid "revoke_update_clients"
+msgstr "• You'll need to update your VPN clients with new configurations"
+
+msgid "revoke_terminate_connections"
+msgstr "• All active connections will be terminated"
+
+msgid "revoke_servers_affected"
+msgstr "Number of servers affected:"
+
+msgid "revoke_proceed_question"
+msgstr "Do you want to proceed with revoking all current connections?"
+
+msgid "revoke_accept_button"
+msgstr "⚠️ Accept and Revoke All Current Connections"

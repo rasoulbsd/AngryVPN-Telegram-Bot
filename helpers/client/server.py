@@ -8,7 +8,12 @@ import uuid
 import helpers.xuiAPI as xAPI
 from helpers.initial import get_secrets_config, connect_to_database, set_lang
 from helpers.bot_functions import check_subscription
-from helpers.states import DELIVER_SERVER, DELIVER_USER_VMESS_STATUS, DELIVER_REFRESH_VMESS
+from helpers.states import (
+    DELIVER_SERVER,
+    DELIVER_USER_VMESS_STATUS,
+    DELIVER_REFRESH_VMESS,
+    REVOKE_SERVERS
+)
 import html
 import re
 
@@ -270,13 +275,13 @@ async def deliver_vmess(update: telegram.Update, context: telext.ContextTypes.DE
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
-    
+
     # Define client_functions_texts for localization
     user_id = update.effective_user.id
     user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
-    
+
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -524,3 +529,284 @@ async def deliver_refresh_vmess(update: telegram.Update, context: telext.Context
     await query.edit_message_text(text=result_text, parse_mode=telegram.constants.ParseMode.MARKDOWN)
     db_client.close()
     return telext.ConversationHandler.END
+
+
+async def revoke_servers(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+    """
+    Shows initial revoke information and options to the user.
+    """
+    try:
+        db_client = connect_to_database(secrets['DBConString'])
+    except Exception:
+        print("Failed to connect to the database!")
+
+    # Define client_functions_texts for localization
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == 'Cancel':
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    # Check if user exists and has servers
+    if user_dict is None:
+        reply_text = client_functions_texts("user_not_found")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    if len(user_dict["server_names"]) == 0:
+        reply_text = client_functions_texts("get_an_account")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+        # Create informative message about revoke process
+    reply_text = f"**{client_functions_texts('revoke_title')}**\n\n"
+    reply_text += f"**{client_functions_texts('revoke_what_happens')}**\n"
+    reply_text += f"{client_functions_texts('revoke_configs_invalid')}\n"
+    # reply_text += f"{client_functions_texts('revoke_new_configs')}\n"
+    reply_text += f"{client_functions_texts('revoke_preserve_data')}\n"
+    reply_text += f"{client_functions_texts('revoke_immediate_configs')}\n\n"
+
+    reply_text += f"**{client_functions_texts('revoke_important_notes')}**\n"
+    reply_text += f"{client_functions_texts('revoke_cannot_undo')}\n"
+    reply_text += f"{client_functions_texts('revoke_update_clients')}\n"
+    reply_text += f"{client_functions_texts('revoke_terminate_connections')}\n\n"
+
+    # reply_text += f"**{client_functions_texts('revoke_servers_affected')}** " + str(len(user_dict["server_names"])) + "\n\n"
+
+    reply_text += client_functions_texts('revoke_proceed_question')
+
+    # Create keyboard with options
+    keyboard = [
+        [telegram.InlineKeyboardButton(client_functions_texts('revoke_accept_button'), callback_data="Accept")],
+        [telegram.InlineKeyboardButton(client_functions_texts("general_cancel"), callback_data="Cancel")]
+    ]
+    reply_markup = telegram.InlineKeyboardMarkup(keyboard)
+
+    await query.edit_message_text(
+        text=reply_text,
+        reply_markup=reply_markup,
+        parse_mode=telegram.constants.ParseMode.MARKDOWN
+    )
+    
+    db_client.close()
+    return REVOKE_SERVERS
+
+
+async def revoke_servers_accepted(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYPE):
+    try:
+        db_client = connect_to_database(secrets['DBConString'])
+    except Exception:
+        print("Failed to connect to the database!")
+
+    query = update.callback_query
+    await query.answer()
+
+    user_id = update.effective_user.id
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+
+    if query.data == 'Cancel':
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_id})
+    if user_dict is None:
+        reply_text = client_functions_texts("user_not_found")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    if len(user_dict["server_names"]) == 0:
+        reply_text = client_functions_texts("get_an_account")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    # Get all servers for the user
+    server_list = list(db_client[secrets['DBName']].servers.find(
+        filter={
+            'name': {'$in': user_dict["server_names"]},
+            'org': {'$in': list(user_dict['orgs'].keys())},
+            "$or": [
+                {'isActive': {"$exists": True, "$eq": True}},
+                {"isActive": {"$exists": False}}
+            ]
+        },
+    ))
+
+    if not server_list:
+        reply_text = client_functions_texts("no_servers_found")
+        await update.effective_message.edit_text(reply_text)
+        db_client.close()
+        return telext.ConversationHandler.END
+
+    # Revoke UUIDs from all servers
+    revoked_count = 0
+    failed_count = 0
+    error_messages = []
+
+    for server_dict in server_list:
+        try:
+            # Regenerate the client's UUID
+            result = xAPI.regenerate_client_uuid(server_dict, user_dict['user_id'])
+            if result[0] == 1:
+                revoked_count += 1
+                new_uuid = result[1]
+                print(f"Successfully regenerated UUID for server {server_dict['name']}: {new_uuid}")
+            else:
+                failed_count += 1
+                error_msg = f"Failed to revoke from {server_dict['name']}: {result[1]}"
+                error_messages.append(error_msg)
+                print(error_msg)
+        except Exception as e:
+            failed_count += 1
+            error_msg = f"Error revoking from {server_dict['name']}: {str(e)}"
+            error_messages.append(error_msg)
+            print(error_msg)
+
+        # Prepare response message
+    if revoked_count > 0:
+        reply_text = client_functions_texts("revoke_success") + str(revoked_count)
+        
+        # if failed_count > 0:
+        #     reply_text += f"\n❌ Failed to revoke {failed_count} server(s)"
+    else:
+        reply_text = client_functions_texts("revoke_failed")
+
+    # Add error details if any
+    # if error_messages:
+    #     reply_text += "\n\nError details:\n" + "\n".join(error_messages[:3])
+
+    await query.edit_message_text(text=reply_text, parse_mode=telegram.constants.ParseMode.MARKDOWN)
+
+    # Send a separate message with server selection
+    await send_server_selection_message(update, context, user_dict, db_client)
+
+    db_client.close()
+    return telext.ConversationHandler.END
+
+
+async def send_server_selection_message(update, context, user_dict, db_client):
+    """
+    Sends VMess configuration immediately in a new message after revoke operation.
+    Shows recommended servers if available, otherwise shows the first active server.
+    """
+    user_lang = user_dict.get('lang', Config['default_language'])
+    client_functions_texts = set_lang(user_lang, 'client_functions')
+    
+    # Get all available servers for the user
+    server_list = list(db_client[secrets['DBName']].servers.find({
+        '$or': [
+            {
+                'AcceptingNew': True,
+                "$or": [
+                    {'isActive': {"$exists": True, "$eq": True}},
+                    {"isActive": {"$exists": False}}
+                ],
+                "role": {'$in': list(set((user_dict.get('role', []) or []) +
+                                     ['normal']))},
+            },
+            {
+                'AcceptingNew': False,
+                'org': {'$in': list(user_dict['orgs'].keys())},
+                "$or": [
+                    {'isActive': {"$exists": True, "$eq": True}},
+                    {"isActive": {"$exists": False}}
+                ],
+                "role": {'$in': list(set((user_dict.get('role', []) or []) +
+                                     ['normal']))},
+            }
+        ],
+    }))
+    
+    if not server_list:
+        return
+    
+    # Find recommended and active servers
+    recommended_servers = []
+    active_servers = []
+    
+    for server in server_list:
+        if server.get('isRecommended', False):
+            recommended_servers.append(server)
+        elif server.get('isActive', True):  # Default to True if not specified
+            active_servers.append(server)
+    
+    # Select servers to show
+    servers_to_show = []
+    if recommended_servers:
+        # Show all recommended servers
+        servers_to_show = recommended_servers
+    elif active_servers:
+        # Show the first active server
+        servers_to_show = [active_servers[0]]
+    
+    if not servers_to_show:
+        return
+    
+    # Send configuration for each selected server
+    for server_dict in servers_to_show:
+        try:
+            # Get or create client for this server
+            user_client = xAPI.get_clients(server_dict, select=[f"{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}"])
+            
+            if user_client is None or user_client.empty:
+                # Create new client if it doesn't exist
+                import uuid
+                temp = str(uuid.uuid4())
+                result = xAPI.add_client(
+                    server_dict=server_dict,
+                    username=f"{user_dict['user_id']}-{server_dict['name']}",
+                    traffic=0,
+                    uuid=temp
+                )
+                if result[0] != 1:
+                    continue
+                user_uuid = temp
+            else:
+                user_client = user_client.iloc[0]
+                user_uuid = user_client['uuid']
+            
+            # Generate VMess configuration
+            vmess_str = xAPI.generate_vmess(
+                server_dict,
+                f"{user_dict['user_id']}",
+                user_uuid
+            )
+            
+            # Create message content
+            server_name = server_dict['name']
+            is_recommended = server_dict.get('isRecommended', False)
+            is_new = server_dict.get('isNew', False)
+            
+            if is_recommended:
+                header = f"⭐ **{server_name}** (Recommended)"
+            elif is_new:
+                header = f"🔴 **{server_name}** (New)"
+            else:
+                header = f"📱 **{server_name}**"
+            
+            reply_text = f"{header}\n"
+            reply_text += f"Remark: `{user_dict['user_id']}-{server_dict['name']}@{server_dict['rowRemark']}`\n"
+            reply_text += f"{'-'*25}\n\n"
+            reply_text += f"`{vmess_str}`"
+            
+            # Send as a new message
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=reply_text,
+                parse_mode=telegram.constants.ParseMode.MARKDOWN
+            )
+            
+        except Exception as e:
+            print(f"Error generating config for server {server_dict['name']}: {str(e)}")
+            continue

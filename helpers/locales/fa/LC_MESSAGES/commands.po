@@ -89,3 +89,6 @@ msgstr "یکی از زبان‌های زیر را انتخاب کنید"
 
 msgid "language_changed"
 msgstr "زبان ربات با موفقیت تغییر پیدا کرد"
+
+msgid "menu_revoke"
+msgstr "🔄 ریست کردن کانفیگ‌ها 🔄"

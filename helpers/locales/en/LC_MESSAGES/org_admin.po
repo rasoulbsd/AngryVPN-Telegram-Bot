@@ -72,3 +72,8 @@ msgstr "T"
 
 msgid "reject_payment"
 msgstr "❌ Your payment was rejected! ❌"
+msgid "exceed_message"
+msgstr "❌ Your Balance is negative! Please charge your wallet through the menu or contact support. ❌"
+
+msgid "85_warning_message"
+msgstr "⚠️ You have used more than 85% of your latest purchased plan, please check your wallet and charge it soom to avoid service ddisruption ⚠️"

@@ -88,3 +88,6 @@ msgstr "Choose from one of these languages"
 
 msgid "language_changed"
 msgstr "Language has been changed successfully"
+
+msgid "menu_revoke"
+msgstr "🔄 Revoke Connections"

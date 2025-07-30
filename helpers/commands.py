@@ -152,6 +152,10 @@ async def menu(update: telegram.Update, context: telext.ContextTypes.DEFAULT_TYP
                 callback_data="Get Servers"
             )],
             [telegram.InlineKeyboardButton(
+                commands_texts("menu_revoke"),
+                callback_data="Revoke All Connections"
+            )],
+            [telegram.InlineKeyboardButton(
                 commands_texts("menu_recharge"),
                 callback_data="Charge Account"
             )],
