@@ -27,27 +27,21 @@ async def update_wallets():
         number_server += 1
     mean_server_price /= number_server
     xui_server = {}
-    user_dicts = list(db_client[secrets['DBName']].users.find({"user_id": 432080595}))
+    user_dicts = list(db_client[secrets['DBName']].users.find())
     number_of_updates = 0
     number_of_message = 0
     for user_dict in user_dicts:
         updated_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_dict["user_id"]})
-        print(user_dict["server_names"])
         for server_name in user_dict["server_names"]:
-            print(f"here in {server_name} - {user_dict['user_id']}")
             server_tmp = db_client[secrets['DBName']].servers.find_one({'name': server_name})
             if server_tmp:
                 if not server_tmp['rowRemark'] in xui_server:
                     xui_server[server_tmp['rowRemark']] = xAPI.get_clients(server_tmp)
                 xui_data = xui_server[server_tmp['rowRemark']][xui_server[server_tmp['rowRemark']].index == f'{user_dict["user_id"]}-{server_name}@{server_tmp["rowRemark"]}']
                 for index, row in xui_data.iterrows():
-                    # print(index)
                     try:
-                            # id_server, server_remark = index.split("@")
-                            # id = id_server.split("-")[0]
                         id = user_dict["user_id"]
-                        # server_name = "-".join(id_server.split("-")[1:])
-                        # server_name = id_server[len(id)+1:]
+
                         server = server_tmp
                         if row.name != f"{id}-{server_name}@{server_tmp['rowRemark']}":
                             continue
@@ -63,11 +57,11 @@ async def update_wallets():
 
                         usage = (row['up'] + row['down'] - prev_usage) / (1024*1024*1024)
                         discount = 0
-                        if  'server_discount' in updated_user_dict:
+                        if 'server_discount' in updated_user_dict:
                             if server['name'] in updated_user_dict['server_discount']:
                                 discount = updated_user_dict['server_discount'][server['name']]
                         cost = usage * server['price'] * (100 - discount) / 100
-                        if  'wallet' in updated_user_dict:
+                        if 'wallet' in updated_user_dict:
                             updated_user_dict['wallet'] = updated_user_dict['wallet'] - cost
                         else:
                             updated_user_dict['wallet'] = - cost
@@ -83,8 +77,7 @@ async def update_wallets():
                             if temp:
                                 number_of_message += 1
                             try:
-                                if temp or True:
-                                    print(server_name)
+                                if temp:
                                     xAPI.restrict_user([server], f"{id}")
                             except Exception as e2:
                                 print(e2)
@@ -94,10 +87,8 @@ async def update_wallets():
                             temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 0)
                             if temp:
                                 number_of_message += 1
-                            xAPI.restrict_user([server], f"{id}", True)
+                            # xAPI.restrict_user([server], f"{id}", True)
                         else:
-                            print(latest_transaction['amount']*0.15)
-                            print(updated_user_dict['wallet'])
                             await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 1)
 
                     # print(f"{index} updated successfully!!")
