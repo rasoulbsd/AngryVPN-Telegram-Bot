@@ -50,7 +50,7 @@ def get_cookie(server_dict: dict):
         )
 
     if response.status_code == 200 and len(response.history) == 0:
-        print("Session or token is valid")
+        # print("Session or token is valid")
         return server_dict['cookie']
     else:
         print("Session or token is invalid, logging in again")
@@ -297,7 +297,7 @@ def generate_vmess(server_dict, username, user_uuid):
     return vmess
 
 
-def restrict_user(server_dicts, user_id):
+def restrict_user(server_dicts, user_id, unrestrict=False):
     for server_dict in server_dicts:
         row = get_remark(server_dict)
         clients_list = json.loads(row['settings'])['clients']
@@ -305,7 +305,7 @@ def restrict_user(server_dicts, user_id):
         for client in clients_list:
             if client['email'] == f'{user_id}-{server_dict["name"]}@{server_dict["rowRemark"]}':
                 temp = client
-                temp['enable'] = False
+                temp['enable'] = unrestrict
         row_settings = json.loads(row['settings'])
         row_settings['clients'] = clients_list
 

@@ -18,7 +18,7 @@ from helpers.client.purchase import (
 from helpers.client.purchase.cad import newuser_purchase_cad, newuser_purchase_cad_inputed_any
 from helpers.main_admin import manage_orgs, bot_settings_callback, bot_settings_callback, toggle_bot_status_callback, change_dev_message_callback, set_dev_message
 from helpers.org_admin.members import add_member_to_my_org, add_member_to_my_org_inputed, ban_member, ban_member_inputed
-from helpers.org_admin.servers import manage_my_org, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed
+from helpers.org_admin.servers import manage_my_org, manage_my_org_server, switch_server_active_join, change_server_traffic, change_server_traffic_inputed, vmess_test, vmess_test_select_endpoint, vmess_test_input_config
 from helpers.org_admin.announcements import admin_announcement, admin_announcement_inputed, direct_message_userid_inputed, direct_message_text_inputed, direct_message
 from helpers.org_admin.charging import admin_charge_account, admin_charge_account_with_userid_and_amount, admin_charge_all_accounts, admin_charge_all_accounts_inputed,accept_receipt,reject_receipt,accept_automatic_receipt, resubmission, accept_manualy_receipt,receipt_rejected,receipt_back
 from telegram.ext import PicklePersistence
@@ -29,7 +29,8 @@ from helpers.states import (
     NEWUSER_PURCHASE_SELECT_PLAN, NEWUSER_PURCHASE_INTERCEPTOR, NEWUSER_PURCHASE_INTERCEPTOR_INPUTED, NEWUSER_PURCHASE_RIAL, NEWUSER_PURCHASE_RIAL_INPUTED, NEWUSER_PURCHASE_RIAL_ZARIN, NUEWUSER_PURCHASE_RECEIPT_CRYPTO, NEWUSER_PURCHASE_FINAL, CHECK_TRANS_MANUALLY, PAID,
     ADMIN_MENU, ADDING_MEMEBER_TO_ORG, BAN_MEMBER, ADMIN_ANNOUNCEMENT, ADMIN_CHARGE_ACCOUNT_USERID, ADMIN_CHARGE_ACCOUNT_AMOUNT, ADMIN_CHARGE_ACCOUNT_FINAL, ADMIN_CHARGE_ALL_ACCOUNTS, ADMIN_CHARGE_ALL_ACCOUNTS_AMOUNT, LISTING_ORG_SERVERS, CHOSING_SERVER_EDIT_ACTION, CHANGING_SERVER_TRAFFIC, ADMIN_DIRECT_MESSAGE_USERID, ADMIN_DIRECT_MESSAGE_TEXT,
     REJECT, ACCEPT, REJECT_CHECK, RESUBMMIT,
-    NEWUSER_PURCHASE_CAD, NEWUSER_PURCHASE_CAD_INPUTED
+    NEWUSER_PURCHASE_CAD, NEWUSER_PURCHASE_CAD_INPUTED,
+    VMESS_TEST_SELECT_ENDPOINT, VMESS_TEST_INPUT_CONFIG
 )
 
 
@@ -223,6 +224,7 @@ if __name__ == '__main__':
                 telext.CallbackQueryHandler(admin_charge_all_accounts, pattern=lambda z: z.get('task', '') == 'Admin Charge All Accounts' if type(z) is dict else False),
                 telext.CallbackQueryHandler(manage_orgs, pattern=lambda z: z.get('task', '') == 'List Org Servers' if type(z) is dict else False),
                 telext.CallbackQueryHandler(direct_message, pattern=lambda z: z.get('task', '') == 'Direct Message' if type(z) is dict else False),
+                telext.CallbackQueryHandler(vmess_test, pattern=lambda z: z.get('task', '') == 'Test Connection' if type(z) is dict else False),
             ],
             ADDING_MEMEBER_TO_ORG: [
                 telext.MessageHandler(telext.filters.Regex("^[0-9]*$"), add_member_to_my_org_inputed)
@@ -263,6 +265,12 @@ if __name__ == '__main__':
             ],
             CHANGING_SERVER_TRAFFIC: [
                 telext.MessageHandler(telext.filters.Regex("^[0-9]*$"), change_server_traffic_inputed)
+            ],
+            VMESS_TEST_SELECT_ENDPOINT: [
+                telext.CallbackQueryHandler(vmess_test_select_endpoint, pattern=lambda z: z.get('task', '') == 'Select VMess Test Endpoint' if type(z) is dict else False),
+            ],
+            VMESS_TEST_INPUT_CONFIG: [
+                telext.MessageHandler(telext.filters.Regex(r'^[\s\S]*$'), vmess_test_input_config)
             ],
         },
         fallbacks=[

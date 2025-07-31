@@ -5,6 +5,7 @@ from scripts.check85 import send_warning_message
 import asyncio
 import datetime
 
+
 async def update_wallets():
     (secrets, Config) = get_secrets_config()
     try:
@@ -26,12 +27,14 @@ async def update_wallets():
         number_server += 1
     mean_server_price /= number_server
     xui_server = {}
-    user_dicts = list(db_client[secrets['DBName']].users.find())
+    user_dicts = list(db_client[secrets['DBName']].users.find({"user_id": 432080595}))
     number_of_updates = 0
     number_of_message = 0
     for user_dict in user_dicts:
         updated_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_dict["user_id"]})
+        print(user_dict["server_names"])
         for server_name in user_dict["server_names"]:
+            print(f"here in {server_name} - {user_dict['user_id']}")
             server_tmp = db_client[secrets['DBName']].servers.find_one({'name': server_name})
             if server_tmp:
                 if not server_tmp['rowRemark'] in xui_server:
@@ -46,6 +49,8 @@ async def update_wallets():
                         # server_name = "-".join(id_server.split("-")[1:])
                         # server_name = id_server[len(id)+1:]
                         server = server_tmp
+                        if row.name != f"{id}-{server_name}@{server_tmp['rowRemark']}":
+                            continue
 
                         prev_usage = 0
                         if 'server_usage' in updated_user_dict:
@@ -78,13 +83,9 @@ async def update_wallets():
                             if temp:
                                 number_of_message += 1
                             try:
-                                if temp:
-                                    user_servers = []
-                                    for server_name2 in updated_user_dict["server_names"]:
-                                        user_servers.append(db_client[secrets['DBName']].servers.find_one({'name': server_name2}))
-                                    # print(user_dict)
-                                    # print(user_servers)
-                                    xAPI.restrict_user(user_servers, f"{id}")
+                                if temp or True:
+                                    print(server_name)
+                                    xAPI.restrict_user([server], f"{id}")
                             except Exception as e2:
                                 print(e2)
                                 # exit()
@@ -93,7 +94,10 @@ async def update_wallets():
                             temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 0)
                             if temp:
                                 number_of_message += 1
+                            xAPI.restrict_user([server], f"{id}", True)
                         else:
+                            print(latest_transaction['amount']*0.15)
+                            print(updated_user_dict['wallet'])
                             await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 1)
 
                     # print(f"{index} updated successfully!!")

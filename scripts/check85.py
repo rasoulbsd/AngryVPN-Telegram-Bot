@@ -9,7 +9,8 @@ bot=Bot(token=TOKEN)
 
 # 0 warning, -1 exceed
 async def send_warning_message(db, user_dict, status = 0):
-    print(f"Sending message to {user_dict['user_id']}")
+    if user_dict['user_id'] != 432080595:
+        return False
 
     if 'status' not in user_dict:
         user_dict['status'] = 1
