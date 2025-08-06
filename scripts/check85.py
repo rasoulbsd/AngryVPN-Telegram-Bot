@@ -8,20 +8,13 @@ TOKEN=secrets['BotAPI']
 bot=Bot(token=TOKEN)
 
 # 0 warning, -1 exceed
-async def send_warning_message(db, user_dict, status = 0):
-    if user_dict['user_id'] != 432080595:
-        return False
-
+async def send_warning_message(db, user_dict, latest_transaction, status = 0):
     if 'status' not in user_dict:
         user_dict['status'] = 1
         db.users.update_one({'user_id': user_dict['user_id']}, {"$set": {"status": user_dict['status']}})
     reply_text = f"آی‌دی شما: `{user_dict['user_id']}`"
 
-    latest_transaction = db.payments.find_one(
-        {'user_id': user_dict['user_id'], 'verified': True},
-        sort=[('_id', -1)]
-    )
-    user_lang = 'en' if 'lang' in user_dict['lang'] and user_dict['lang'] == 'en' else 'fa'
+    user_lang = 'en' if 'lang' in user_dict and user_dict['lang'] == 'en' else 'fa'
     org_admin_texts = set_lang(user_lang, 'org_admin')
 
     reply_text += "\n\n"
@@ -36,6 +29,7 @@ async def send_warning_message(db, user_dict, status = 0):
 
     reply_text += f"\nکیف پول: {user_dict['wallet']*multiply_factor:.2f} تومان"
     flag = False
+
     if user_dict['status'] != status:
         if status == -1 or status == 0:
             try:

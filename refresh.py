@@ -31,6 +31,7 @@ async def update_wallets():
     number_of_updates = 0
     number_of_message = 0
     for user_dict in user_dicts:
+        print(f"{number_of_updates+1}/{len(user_dicts)}")
         updated_user_dict = db_client[secrets['DBName']].users.find_one({'user_id': user_dict["user_id"]})
         for server_name in user_dict["server_names"]:
             server_tmp = db_client[secrets['DBName']].servers.find_one({'name': server_name})
@@ -72,8 +73,11 @@ async def update_wallets():
                             {'user_id': int(id)},
                             sort=[('_id', -1)]
                         )
+                        if not latest_transaction:
+                            latest_transaction = []
+                            latest_transaction['amount'] = 100
                         if updated_user_dict['wallet'] < 0:
-                            temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, -1)
+                            temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, latest_transaction, -1)
                             if temp:
                                 number_of_message += 1
                             try:
@@ -84,12 +88,12 @@ async def update_wallets():
                                 # exit()
                         elif updated_user_dict['wallet'] < latest_transaction['amount']*0.15:
                             # print(user_dict['wallet']< 5 * mean_server_price)
-                            temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 0)
+                            temp = await send_warning_message(db_client[secrets['DBName']], updated_user_dict, latest_transaction, 0)
                             if temp:
                                 number_of_message += 1
                             # xAPI.restrict_user([server], f"{id}", True)
                         else:
-                            await send_warning_message(db_client[secrets['DBName']], updated_user_dict, 1)
+                            await send_warning_message(db_client[secrets['DBName']], updated_user_dict, latest_transaction, 1)
 
                     # print(f"{index} updated successfully!!")
                     except Exception as e:
