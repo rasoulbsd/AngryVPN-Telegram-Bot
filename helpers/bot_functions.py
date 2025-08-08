@@ -115,8 +115,9 @@ def show_users():
         # user_objs = db_client[secrets['DBName']].users.find()
         db_client[secrets['DBName']].users.update_one({'_id': user_obj['_id']}, {'$push': {'credit': 0}})
 
+
 async def after_automatic_payment(update, context):
-    try: 
+    try:
         db_client = connect_to_database(secrets['DBConString'])
     except Exception:
         print("Failed to connect to the database!")
@@ -135,6 +136,7 @@ async def after_automatic_payment(update, context):
 
     server_dict = db_client[secrets['DBName']].servers.find_one({"org": org_name})
 
+
     tr_verification_data = {
         "user_id": context.user_data['user_id'],
         "org": org_name,
@@ -144,6 +146,8 @@ async def after_automatic_payment(update, context):
         "amount": context.user_data['pay_amount'] * context.user_data['discount'],
         "discount":  context.user_data['discount'],
         "payment_receipt": context.user_data['payment_receipt'],
+        "prev_wallet": user_dict.wallet,
+        "new_wallet": ,
         "date": datetime.datetime.now().isoformat(),
         "verified": False,
         "failed": False
@@ -220,6 +224,7 @@ async def after_automatic_payment(update, context):
     db_client.close()
     return telext.ApplicationHandlerStop(telext.ConversationHandler.END)
     # return telext.ConversationHandler.END
+
 
 async def manual_charge(user_id, charge_amount):
         try: 

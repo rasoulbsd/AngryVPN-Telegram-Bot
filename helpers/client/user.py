@@ -24,15 +24,6 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
     user_lang = user_dict.get('lang', Config['default_language']) if user_dict else Config['default_language']
     client_functions_texts = set_lang(user_lang, 'client_functions')
 
-    user_org = db_client[secrets['DBName']].orgs.find_one({'name': list(user_dict['orgs'].keys())[0]})
-    if 'rial' in user_org['payment_options']['currencies']:
-        currency = 'rial'
-    elif 'cad' in user_org['payment_options']['currencies']:
-        currency = 'cad'
-    else:
-        print("Not Implemented")
-        raise EOFError
-
     query = update.callback_query
     await query.answer()
     if query.data == 'Cancel':
@@ -54,6 +45,15 @@ async def get_userinfo(update: telegram.Update, context: telext.ContextTypes.DEF
             db_client.close()
             return telext.ConversationHandler.END
         else:
+            user_org = db_client[secrets['DBName']].orgs.find_one({'name': list(user_dict['orgs'].keys())[0]})
+            if 'rial' in user_org['payment_options']['currencies']:
+                currency = 'rial'
+            elif 'cad' in user_org['payment_options']['currencies']:
+                currency = 'cad'
+            else:
+                print("Not Implemented")
+                raise EOFError
+
             if len(user_dict['server_names']) == 0:
                 reply_text = client_functions_texts("your_user_id") + \
                     f' `{update.effective_user.id}`'

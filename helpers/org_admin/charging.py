@@ -309,10 +309,10 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
             count += 1
             charge_amount = int(update.effective_message.text)
             prev_wallet = user_obj['wallet']
-            user_obj['wallet'] += float(charge_amount)
+            new_wallet = float(charge_amount) + user_obj['wallet']
             db_client[secrets['DBName']].users.update_one(
                 {'user_id': user_obj['user_id']},
-                {'$set': {'wallet': user_obj['wallet']}}
+                {'$set': {'wallet': new_wallet}}
             )
 
             tr_verification_data = {
@@ -325,7 +325,7 @@ async def admin_charge_all_accounts_inputed(update: telegram.Update, context: te
                 "payment_receipt": f"Charge All by admin: {update.effective_chat.id}",
                 "admin": update.effective_chat.id,
                 "prev_wallet": prev_wallet,
-                "new_wallet": user_obj['wallet'],
+                "new_wallet": new_wallet,
                 "date": datetime.datetime.now().isoformat(),
                 "verified": True,
                 "failed": False
@@ -518,6 +518,7 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
     else:
         payment_type = "crypto"
 
+    new_wallet = float(user_dict['wallet']) + float(credentials['pay_amount'].split(',')[0])
     tr_verification_data = {
         "user_id": credentials['user_id'],
         "org": credentials["org_name"],
@@ -527,6 +528,8 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
         "amount": int(credentials['pay_amount'].split(',')[0]),
         "discount": user_dict['discount'] if 'discount' in user_dict else 0,
         "payment_receipt": credentials['payment_receipt'],
+        "prev_wallet": user_dict['wallet'],
+        "new_wallet": new_wallet,
         "date": datetime.datetime.now().isoformat(),
         "verified": False,
         "failed": False
@@ -555,7 +558,7 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
         },
         {
             "$set": {
-                "wallet": float(user_dict['wallet']) + float(credentials['pay_amount'].split(',')[0])
+                "wallet": new_wallet
             }
         }
     )
