@@ -632,7 +632,7 @@ async def accept_automatic_receipt(update: telegram.Update, context: telext.Cont
         return RESUBMMIT
 
     org_channel = db_client[secrets['DBName']].orgs.find_one({'name': credentials["org_name"]})['channel']['link']
-    if context.user_data['currency'] == 'cad':
+    if credentials['currency'] == 'cad':
         currency_text = f' {float(credentials["pay_amount"].split(",")[0])} ' + org_admin_texts('CAD')
     else:
         currency_text = f' {float(credentials["pay_amount"].split(",")[0]) * 1000} ' + org_admin_texts('T')
