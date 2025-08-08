@@ -147,7 +147,6 @@ async def after_automatic_payment(update, context):
         "discount":  context.user_data['discount'],
         "payment_receipt": context.user_data['payment_receipt'],
         "prev_wallet": user_dict.wallet,
-        "new_wallet": ,
         "date": datetime.datetime.now().isoformat(),
         "verified": False,
         "failed": False
